@@ -21,7 +21,7 @@
   function createBox( keyId ) {
     //引数のデータが想定と合っているかどうかを判定
     if (typeof keyId !== 'string') {
-      console.error('createBox() arg1 must be string');
+      console.error( 'createBox() arg1 must be string' );
       return;
     }
     //boxElementはreturnされるhtml要素
@@ -32,7 +32,7 @@
     headlineElement.appendChild( createElementAndSetAttribute( 'i', { 'class': 'fa fa-plus', 'aria-hidden': 'true' } ) );
     headlineElement.appendChild( createElementAndSetAttribute( 'i', { 'class': 'fa fa-cog', 'aria-hidden': 'true' } ) );
     headlineElement.appendChild( createElementAndSetAttribute( 'i', { 'class': 'fa fa-trash-o', 'aria-hidden': 'true' } ) );
-    headlineElement.addEventListener('mousedown', function( mouseEvent ) {
+    headlineElement.addEventListener( 'mousedown', function( mouseEvent ) {
         addEventMoveOnDrug( mouseEvent );
     });
 
@@ -50,11 +50,11 @@
     function createElementAndSetAttribute( tagName, attributes ) {
       //引数のデータ型が想定と合っているかどうかを判定
       if ( typeof tagName !== 'string' ) {
-        console.error('createElementAndSetAttribute() arg1 must be string');
+        console.error( 'createElementAndSetAttribute() arg1 must be string' );
         return;
       }
       if ( typeof attributes !== 'object' ) {
-        console.error('createElementAndSetAttribute() arg2 must be object');
+        console.error( 'createElementAndSetAttribute() arg2 must be object' );
         return;
       }
 
@@ -126,7 +126,7 @@
       parentElement.style.top =  parentPositionTop + 'px';
     }
     //mouseup時にmousemoveのイベントを削除
-    document.addEventListener('mouseup', function ( mouseUpEvent ) {
+    document.addEventListener( 'mouseup', function ( mouseUpEvent ) {
       document.removeEventListener( 'mousemove', handleMouseMove, true );
     }, true );
   }
