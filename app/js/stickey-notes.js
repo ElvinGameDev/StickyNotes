@@ -193,11 +193,12 @@
   }//--- end elementAppendOnButtonClicked()
 
   /**
-   *settingボタンが押されたときにメニューバーを表示する(色を変えたりフォントサイズを変更したりするための)
+   *settingボタンが押されたときにメニューバーを表示する(色を変えたりフォントサイズを変更したりする)
    *@param { object } clickObject - クリック時の情報が入ったオブジェクト
    */
   function elementSettingOnButtonClicked( clickObject ) {
 
+    //要素の生成
     let showTarget = clickObject.target.parentElement.parentElement,
         settingMenu = createElementAndSetAttribute( 'div', { 'class': 'box__headline--setting' } ),
         yellowBtn = createElementAndSetAttribute( 'i', { 'class': 'box__headline--setting-color-btn box__color--yellow', 'role': 'button', 'aria-hidden': 'true', 'title': 'change yellow' } ),
@@ -209,9 +210,27 @@
         smallerTxtBtn = createElementAndSetAttribute( 'i', { 'class': 'fa fa-search-minus', 'role': 'button', 'aria-hidden': 'true', 'title': 'more smaller' } ),
         closeBtn = createElementAndSetAttribute( 'i', { 'class': 'fa fa-times', 'role': 'button', 'aria-hidden': 'true', 'title': 'close' } );
 
+    //閉じるボタンを押した時にメニューバーをremoveする
     closeBtn.addEventListener('click', function ( clickObject ) {
       showTarget.removeChild( clickObject.target.parentElement );
     });
+
+    //メニューバーをドラッグした時に付箋要素が移動するようにイベントを追加
+    settingMenu.addEventListener( 'mouseover', elementMoveOnSettingDrug );
+    settingMenu.removeEventListener( 'mouseout', elementMoveOnSettingDrug );
+
+    /**
+     *ホバー時に付箋要素を移動させる。メニューバーの子要素の場合は付箋要素の移動イベントを削除する。
+     *@param { object } mouseoverObject - mouseover時の情報が入ったオブジェクト
+     */
+    function elementMoveOnSettingDrug( mouseoverObject ) {
+      if ( mouseoverObject.target.children.length > 0 ) {
+        this.addEventListener( 'mousedown', elementMoveOnDrug );
+      } else {
+        this.removeEventListener( 'mousedown', elementMoveOnDrug );
+      }
+    }//--- end elementMoveOnSettingDrug()
+
     settingMenu = appendElements( settingMenu, [ yellowBtn, blueBtn, pinkBtn, greenBtn, grayBtn, largerTxtBtn, smallerTxtBtn, closeBtn ] );
     appendElements( showTarget, [ settingMenu ] );
 

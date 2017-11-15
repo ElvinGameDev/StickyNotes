@@ -67,6 +67,7 @@ html, body {
       z-index: 1000;
       display: flex;
       justify-content: flex-start;
+      cursor: move;
 
       & > i {
         margin: .3rem .5rem;
