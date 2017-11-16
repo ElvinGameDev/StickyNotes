@@ -1,7 +1,9 @@
+@charset "UTF-8";
 html, body {
   width: 100vw;
   height: 100vh;
-  font-size: 10px; }
+  font-size: 10px;
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI","Noto Sans Japanese","ヒラギノ角ゴ ProN W3", Meiryo, sans-serif; }
 
 .wrapper {
   background: transparent; }
