@@ -1,36 +1,35 @@
 /**
- *
- *@fileoverview 付箋紙の要素に対するイベント操作・記憶処理を行う
+ *@fileoverview control event and data about sticky notes
  *@author AkihisaOchi
  *
- * ******************* ローカルストレージメモ ************************
+ * ***************** localStorage memo *****************
  *
- * ローカルストレージは各付箋要素の状態を記憶するために使用する
- * ローカルストレージは配列やオブジェクトに対応してないので都度jsonに変換する
+ * use localStorage for following two points
+ * [1] store ids of element
+ * [2] store information of style definition
  *
- * [ STORAGE ] window.localStorage() ローカルストレージを格納する
- * [ STORAGE.IDS ] 付箋要素のIDの配列を格納する
+ * [ STORAGE ] = localStorage >> for simple access
+ * [ STORAGE.IDS ] = { array } >> for [1]
+ * [ STORAGE.***( uniqueId ) ] = { object } >> for [2]
  *
- * [ STORAGE.{ 各付箋要素にユニークなID } 情報を持ったオブジェクトを格納
- *
- * 以下オブジェクトの内容
+ * prop & value of [2]
  * {
- *  'clientLeft'  : '画面の左端からの距離',
- *  'clientTop'   : '画面の上端からの距離',
- *  'className'   : '背景色を定義するクラス名',
- *  'clientWidth' : 'テキストエリアの横幅',
- *  'clientHeight': 'テキストエリアの縦幅',
- *  'value'       : 'テキストエリアの値',
+ *  'clientLeft'  : 'distance from screen left',
+ *  'clientTop'   : 'distance from screen top',
+ *  'className'   : 'className define background-color',
+ *  'clientWidth' : 'textarea width',
+ *  'clientHeight': 'textarea height',
+ *  'value'       : 'textarea value',
  * }
  *
- * *********************************************************************
+ * ***************** localStorage memo *****************
  *
  */
 
 (function() {
 
   /** STORAGEにはローカルストレージオブジェクトが格納される @const { object } */
-  let STORAGE = window.localStorage;
+  let STORAGE = localStorage;
 
   STORAGE.clear(); //デバッグ用ローカルストレージをクリアする
 
