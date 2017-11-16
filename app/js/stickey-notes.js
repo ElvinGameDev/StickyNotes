@@ -112,6 +112,10 @@
     //mousemove時にスクリーンを超えたかどうかを判定するために親要素のサイズを取得
     let [ parentWidth, parentHeight ] = [ parentElement.offsetWidth, parentElement.offsetHeight ];
 
+    //マウスポインタの移動時に付箋要素のテキストエリアが選択されるとバグになるので、選択を禁止する
+    document.onselectstart = function(){ return false; };
+    document.getElementsByTagName( 'textarea' ).Enable = false;
+
     //マウスの移動が要素の移動よりも速い場合に備えてdocumentにmousemoveイベントを設置
     document.addEventListener( 'mousemove', elementMoveWithMouseMove );
 
@@ -173,6 +177,10 @@
     document.addEventListener( 'mouseup', function () {
 
       document.removeEventListener( 'mousemove', elementMoveWithMouseMove );
+
+      //移動イベントが終わった際には、選択の禁止を解除する
+      document.onselectstart = function () { return true; };
+      document.getElementsByTagName( 'textarea' ).Enable = true;
 
     });
 
