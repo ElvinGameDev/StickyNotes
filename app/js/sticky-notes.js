@@ -14,8 +14,8 @@
  *
  * prop & value of [2]
  * {
- *  'clientLeft'  : 'distance from screen left',
- *  'clientTop'   : 'distance from screen top',
+ *  'offsetLeft'  : 'distance from screen left',
+ *  'offsetTop'   : 'distance from screen top',
  *  'className'   : 'className define background-color',
  *  'clientWidth' : 'textarea width',
  *  'clientHeight': 'textarea height',
@@ -611,8 +611,8 @@
 
     //情報を格納したオブジェクトを作成する
     let targetIdStatus = {
-      'clientLeft': savedTargetWrapper.clientLeft,      //画面の左端からの距離
-      'clientTop': savedTargetWrapper.clientTop,        //画面の上端からの距離
+      'offsetLeft': savedTargetWrapper.offsetLeft,      //画面の左端からの距離
+      'offsetTop': savedTargetWrapper.offsetTop,        //画面の上端からの距離
       'className': saveClassName,                       //背景色を定義するクラス名
       'clientWidth': savedTextareaElement.clientWidth,  //テキストエリアの横幅
       'clientHeight': savedTextareaElement.clientHeight,//テキストエリアの縦幅
@@ -656,11 +656,11 @@
 
       switch ( key ) {
         //画面の左からの表示位置を適用
-        case 'clientLeft':
+        case 'offsetLeft':
           applyTargetWrapper.style.left = applyObject[ key ];
           break;
         //画面の上からの表示位置を適用
-        case 'clientTop':
+        case 'offsetTop':
           applyTargetWrapper.style.top = applyObject[ key ];
           break;
         //背景色を定義するクラス名を適用
