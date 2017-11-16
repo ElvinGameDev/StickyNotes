@@ -1,20 +1,100 @@
 /**
+ *
  *@fileoverview 付箋紙の要素に対するイベント操作・記憶処理を行う
  *@author AkihisaOchi
+ *
+ * ******************* ローカルストレージメモ ************************
+ *
+ * ローカルストレージは各付箋要素の状態を記憶するために使用する
+ * ローカルストレージは配列やオブジェクトに対応してないので都度jsonに変換する
+ *
+ * [ STORAGE ] window.localStorage() ローカルストレージを格納する
+ * [ STORAGE.IDS ] 付箋要素のIDの配列を格納する
+ *
+ * [ STORAGE.{ 各付箋要素にユニークなID } 情報を持ったオブジェクトを格納
+ *
+ * 以下オブジェクトの内容
+ * {
+ *  'clientLeft'  : '画面の左端からの距離',
+ *  'clientTop'   : '画面の上端からの距離',
+ *  'className'   : '背景色を定義するクラス名',
+ *  'clientWidth' : 'テキストエリアの横幅',
+ *  'clientHeight': 'テキストエリアの縦幅',
+ *  'value'       : 'テキストエリアの値',
+ * }
+ *
+ * *********************************************************************
+ *
  */
+
 (function() {
 
-  /** storageにはローカルストレージオブジェクトが格納される @const { object } */
-  const STORAGE = window.localStorage;
-  /** appendTargetIdは要素をhtmlにappendするための鍵となるId @const { object } */
+  /** STORAGEにはローカルストレージオブジェクトが格納される @const { object } */
+  let STORAGE = window.localStorage;
+
+  STORAGE.clear(); //デバッグ用ローカルストレージをクリアする
+
+  /** ローカルストレージに記憶する要素 @let { array } */
+  let BOX_IDS = [];
+
+  /** appendTargetIdは要素をhtmlにappendするための鍵となるId @const { string } */
   const SCREEN_TARGET = document.getElementById( 'js__append--target' );
+
+
 
   window.addEventListener( 'load', function () {
 
-    let uniqueId = createUniqueId();
-    appendElements( SCREEN_TARGET, [ createBox( uniqueId ) ] );
+    //STORAGEにIDSというプロパティがあるかどうかを調べ条件分岐させる
+    if ( 'IDS' in STORAGE ) {
+
+      //STORAGEにIDSというプロパティが存在すれば２回目以降のロード
+      //ローカルストレージに保存された情報を画面に再現する
+      elementCreateFromArray();
+
+    } else {
+
+      //STORAGEにIDSというプロパティが存在しなければ1回目のロード
+      //STORAGE_IDSがundefinedの場合は付箋要素を1つ作成し画面に表示する
+      firstElementCreate();
+
+    }
 
   });
+
+
+
+  /**
+   *生成したユニークなidをもとに付箋要素を生成し、関連情報をローカルストレージに記憶する
+   */
+  function firstElementCreate() {
+
+      //ユニークなidをを生成
+      let uniqueId = createUniqueId();
+
+      //idを元に生成した付箋要素を画面に表示
+      appendElements( SCREEN_TARGET, [ createBox( uniqueId ) ] );
+
+      //付箋要素の情報をローカルストレージに記憶
+      saveBoxValueToLocalStorage( uniqueId );
+
+  }//--- firstElementCreate()
+
+  function elementCreateFromArray() {
+    BOX_IDS = JSON.parse( STORAGE.IDS );
+
+    for ( let key in BOX_IDS ) {
+
+      //ID毎に付箋要素を生成し記憶されたスタイルを適用する処理
+      let thisId = BOX_IDS[ key ];
+
+      //idを元に生成した付箋要素を画面に表示
+      appendElements( SCREEN_TARGET, [ createBox( uniqueId ) ] );
+
+      //ローカルストレージの情報を要素に適用する
+      applyBoxValueFromLocalStorage( uniqueId );
+
+    }
+  }//--- elementCreateFromArray()
 
   /**
    *@param { string } keyId - Boxの情報を記憶する鍵となるid
@@ -23,9 +103,7 @@
   function createBox( keyId ) {
 
     //引数のデータ型が期待通りかどうかを判定
-    if ( typeof keyId !== 'string' ) {
-      throw new Error( 'In createBox() at "keyId" must be string' );
-    }
+    if ( typeof keyId !== 'string' ) throw new Error( 'In createBox() at "keyId" must be string' );
 
     //boxWrapperElementはreturnされるhtml要素
     let boxWrapperElement = createElementAndSetAttribute( 'section', { 'class': 'box box__color--yellow' } );
@@ -55,7 +133,8 @@
     //boxTextareaElementはboxWrapperElementの子要素
     let boxTextareaElement = createElementAndSetAttribute('textarea', { 'class': 'box__textarea' });
     boxTextareaElement.style.fontSize = '2rem';
-    //boxTextareaElementにイベントを追加・削除
+
+    //boxTextareaにイベントを追加・削除(テキストエリアのリサイズ可能範囲でマウスポインタの形状を変更する)
     boxTextareaElement.addEventListener( 'mouseover', addEventCursorAllScrollOnMouseover );
     boxTextareaElement.addEventListener( 'mouseout', function() {
       boxTextareaElement.removeEventListener( 'mouseover', addEventCursorAllScrollOnMouseover );
@@ -65,6 +144,10 @@
     boxWrapperElement.style.zIndex = 100;
 
     boxWrapperElement.addEventListener( 'mousedown', controlZIndexOnBoxMousedown );
+
+
+    controlIdsToLocalStorage( keyId, 'push' );
+
 
     //boxWrapperElementを返す
     return boxWrapperElement;
@@ -173,9 +256,10 @@
 
     }//--- end elementMoveWithMouseMove()
 
-    //mouseup時にmousemoveのイベントを削除
+    //mouseup時にmousemoveのイベントを削除する
     document.addEventListener( 'mouseup', function () {
 
+      //mousemonveイベントを削除
       document.removeEventListener( 'mousemove', elementMoveWithMouseMove );
 
       //移動イベントが終わった際には、選択の禁止を解除する
@@ -428,12 +512,8 @@
   function createElementAndSetAttribute( tagName, attributes ) {
 
     //引数のデータ型が期待通りかどうかを判定
-    if ( typeof tagName !== 'string' ) {
-      throw new Error( 'In createElementAndSetAttribute() at "tagName" must be string' );
-    }
-    if ( typeof attributes !== 'object' ) {
-      throw new Error( 'In createElementAndSetAttribute() at "attributes" must be object' );
-    }
+    if ( typeof tagName !== 'string' ) throw new Error( 'In createElementAndSetAttribute() at "tagName" must be string' );
+    if ( typeof attributes !== 'object' )  throw new Error( 'In createElementAndSetAttribute() at "attributes" must be object' );
 
     //要素を生成
     let element = document.createElement( tagName );
@@ -458,12 +538,8 @@
   function appendElements( targetElement, materialElements ) {
 
     //引数のデータ型が期待通りかどうかを判定
-    if ( typeof targetElement !== 'object' ) {
-      throw new Error( 'In appendElement() at "targetElement" must be object' );
-    }
-    if ( materialElements instanceof Array !== true ) {
-      throw new Error( 'In appendElement() at "materialElements" must be array' );
-    }
+    if ( typeof targetElement !== 'object' ) throw new Error( 'In appendElement() at "targetElement" must be object' );
+    if ( materialElements instanceof Array !== true ) throw new Error( 'In appendElement() at "materialElements" must be array' );
 
     //targetElementに対してmaterialElementsをループで回してappendchildする
     for ( const key in materialElements ) {
@@ -474,5 +550,146 @@
     return targetElement;
 
   }//--- end appendElements()
+
+
+  /**
+   *@param { string } keyId - 配列に対して操作をする鍵となるid
+   *@param { string } order - 値が'push'の場合は配列に追加、'pop'の場合は配列から削除
+   */
+  function controlIdsToLocalStorage( keyId, order ) {
+
+    //渡ってくる引数が期待通りかどうかを判定するガード節
+    if ( typeof keyId !== 'string' ) throw new Error( 'In controlIdsToLocalStorage() at "keyId" must be string' );
+    if ( order !== 'push' && order !== 'pop' ) throw new Error( 'In controlIdsToLocalStorage() at "order" must be string / push or pop' );
+
+    //orderが'push'の場合はBOX_IDSにkeyIdを追加、orderが'pop'の場合はBOX_IDSからkeyIdを削除
+    switch ( order ) {
+      case 'push':
+        BOX_IDS.push( keyId );
+        break;
+      case 'pop':
+        BOX_IDS.pop( keyId );
+        break;
+
+      //orderが'push'か'pop'以外の場合はガードしているのでdefaultは設定しない
+    }
+
+    //ローカルストレージに配列は格納できないので、json形式に変換してから格納
+    STORAGE.IDS = JSON.stringify( BOX_IDS );
+
+  }//--- end controlIdsToLocalStorage()
+
+  /**
+   *idを元に付箋要素の表示情報を取得し、ローカルストレージに保存する
+   *@param { string } saveTargetId - 付箋要素を特定するためのid
+   */
+  function saveBoxValueToLocalStorage( saveTargetId ) {
+
+    //渡ってくる引数が期待通りかどうかを判定するガード節
+    if ( typeof saveTargetId !== 'string' ) throw new Error( 'In saveBoxValueToLocalStorage() at "saveTargetId" must be string' );
+
+    //情報を取得するために鍵となる要素を取得
+    let savedTargetWrapper = document.getElementById( saveTargetId ),
+        savedTextareaElement = savedTargetWrapper.lastElementChild;
+
+    //idを持つ要素が見つからなかったときのためのガード節
+    if ( savedTargetWrapper.length === 0 ) throw new Error( ' In saveBoxValueToLocalStorage() don\'t found element of this id' );
+
+    //背景色を定義するクラス名を探す
+    let currentClassList = savedTargetWrapper.classList,
+        matchKeyWord = /^box__color--/,
+        saveClassName = '';
+
+    for ( let i = 0; i < currentClassList.length; i++ ) {
+
+      if ( currentClassList[ i ].match( matchKeyWord ) ) {
+
+        saveClassName = currentClassList[ i ];
+
+      }
+
+    }
+
+    //情報を格納したオブジェクトを作成する
+    let targetIdStatus = {
+      'clientLeft': savedTargetWrapper.clientLeft,      //画面の左端からの距離
+      'clientTop': savedTargetWrapper.clientTop,        //画面の上端からの距離
+      'className': saveClassName,                       //背景色を定義するクラス名
+      'clientWidth': savedTextareaElement.clientWidth,  //テキストエリアの横幅
+      'clientHeight': savedTextareaElement.clientHeight,//テキストエリアの縦幅
+      'value': savedTextareaElement.value,              //テキストエリアの値
+    };
+
+    STORAGE.setItem( saveTargetId, JSON.stringify( targetIdStatus ) );
+
+  }//--- saveBoxValueToLocalStorage()
+
+  /**
+   *applyKeyIdを元にローカルストレージから情報を取り出し、applyKeyIdに対応した要素にスタイルを適用する
+   *@param { string } applyKeyId - 適用する要素のid、ローカルストレージから呼び出すプロパティとしても使う
+   */
+  function applyBoxValueFromLocalStorage( applyKeyId ) {
+
+    //渡ってくる引数が期待通りかどうかを判定するガード節
+    if ( typeof applyKeyId !== 'string' ) throw new Error( 'In applyBoxValueFromLocalStorage() at "applyKeyId" must be string' );
+
+    //ローカルストレージから情報を取得
+    let applyObject = JSON.parse(STORAGE.getItem(applyKeyId)),
+        applyTargetWrapper = document.getElementById( applyKeyId ),
+        applyTextareaElement = applyTargetWrapper.lastElementChild;
+
+    //背景色を定義するクラス名を探す
+    let currentClassList = applyTargetWrapper.classList,
+    matchKeyWord = /^box__color--/,
+    removeClassName = '';
+
+    for ( let i = 0; i < currentClassList.length; i++ ) {
+
+      if ( currentClassList[ i ].match( matchKeyWord ) ) {
+
+        removeClassName = currentClassList[ i ];
+
+      }
+
+    }
+
+    for ( let key in applyObject ) {
+
+      switch ( key ) {
+        //画面の左からの表示位置を適用
+        case 'clientLeft':
+          applyTargetWrapper.style.left = applyObject[ key ];
+          break;
+        //画面の上からの表示位置を適用
+        case 'clientTop':
+          applyTargetWrapper.style.top = applyObject[ key ];
+          break;
+        //背景色を定義するクラス名を適用
+        case 'className':
+          applyTargetWrapper.classList.remove( removeClassName );
+          applyTargetWrapper.classList.add( applyObject[ key ] );
+          break;
+        //横幅を適用する
+        case 'clientWidth':
+          applyTextareaElement.style.width = applyObject[ key ];
+          break;
+        //高さを適用する
+        case 'clientHeight':
+          applyTextareaElement.style.height = applyObject[ key ];
+          break;
+        //値を適用する
+        case 'value':
+          applyTextareaElement.value = applyObject[ key ];
+          break;
+        //想定外のときはエラーを出す
+        default:
+          throw new Error( 'In applyBoxValueFromLocalStorage() prop of applyObject is unexpected' );
+          break;
+
+      }
+
+    }
+
+  }//--- end applyBoxValueFromLocalStorage()
 
 })();
