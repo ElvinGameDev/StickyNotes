@@ -1,7 +1,7 @@
 {
-  "name": "stickeynootes",
+  "name": "Sticky Notes",
   "version": "1.0.0",
-  "description": "stickeynootes will contain information",
+  "description": "Sticky Notes will provide convinent information life",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/akihisaochi/stickeyNotes.git"
+    "url": "https://github.com/akihisaochi/StickyNotes.git"
   },
   "author": {
     "name": "AkihisaOchi",
