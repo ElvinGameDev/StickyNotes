@@ -1,7 +1,7 @@
 {
-  "name": "Sticky Notes",
+  "name": "StickyNotes",
   "version": "1.0.0",
-  "description": "Sticky Notes will provide convinent information life",
+  "description": "Sticky Notes will provide convenient information life",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
