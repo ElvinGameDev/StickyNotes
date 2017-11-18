@@ -14,12 +14,12 @@
  *
  * prop & value of [2]
  * {
- *  'offsetLeft'  : 'distance from screen left',
- *  'offsetTop'   : 'distance from screen top',
- *  'className'   : 'className define background-color',
- *  'clientWidth' : 'textarea width',
- *  'clientHeight': 'textarea height',
- *  'value'       : 'textarea value',
+ *  offsetLeft  : 'distance from screen left',
+ *  offsetTop   : 'distance from screen top',
+ *  className   : 'className define background-color',
+ *  clientWidth : 'textarea width',
+ *  clientHeight: 'textarea height',
+ *  value       : 'textarea value',
  * }
  *
  * ***************** localStorage memo *****************
@@ -231,8 +231,8 @@
       }
 
       //付箋要素にマウスポインタの移動値を適用
-      parentElement.style.left = parentPositionLeft + 'px';
-      parentElement.style.top = parentPositionTop + 'px';
+      parentElement.style.left = `${parentPositionLeft}px`;
+      parentElement.style.top = `${parentPositionTop}px`;
     }//--- end elementMoveWithMouseMove()
 
     //mouseup時にmousemoveのイベントを削除する
@@ -274,8 +274,8 @@
     let uniqueId = createUniqueId();
     let appendBox = createBox(uniqueId);
 
-    appendBox.style.left = addPositionX + 'px';
-    appendBox.style.top = addPositionY + 'px';
+    appendBox.style.left = `${addPositionX}px`;
+    appendBox.style.top = `${addPositionY}px`;
 
     appendElements(SCREEN_TARGET, [appendBox]);
   }//--- end elementAppendOnButtonClicked()
@@ -284,33 +284,31 @@
    *settingボタンが押されたときにメニューバーを表示する(色を変えたりフォントサイズを変更したりする)
    *@param { object } clickObject - クリック時の情報が入ったオブジェクト
    */
-  function elementSettingOnButtonClicked( clickObject ) {
+  function elementSettingOnButtonClicked(clickObject) {
     //メニューを表示する要素の取得
     let showTarget = clickObject.target.parentElement.parentElement;
     //メニューバーの要素の生成
-    let settingMenu = createElementAndSetAttribute('div', { 'class': 'box__headline--setting' });
-    let yellowBtn = createElementAndSetAttribute('i', { 'class': 'box__headline--setting-color-btn box__color--yellow', 'role': 'button', 'aria-hidden': 'true', 'title': 'change yellow' });
-    let blueBtn = createElementAndSetAttribute('i', { 'class': 'box__headline--setting-color-btn box__color--blue', 'role': 'button', 'aria-hidden': 'true', 'title': 'change blue' });
-    let pinkBtn = createElementAndSetAttribute('i', { 'class': 'box__headline--setting-color-btn box__color--pink', 'role': 'button', 'aria-hidden': 'true', 'title': 'change pink' });
-    let greenBtn = createElementAndSetAttribute('i', { 'class': 'box__headline--setting-color-btn box__color--green', 'role': 'button', 'aria-hidden': 'true', 'title': 'change green' });
-    let grayBtn = createElementAndSetAttribute('i', { 'class': 'box__headline--setting-color-btn box__color--gray', 'role': 'button', 'aria-hidden': 'true', 'title': 'change gray' });
+    let settingMenu = createElementAndSetAttribute('div', {
+      'class': 'box__headline--setting'
+    });
+    //カラーボタン要素の配列を作成
+    let colorBtnList = createColorBtnArray(['yellow', 'blue', 'pink', 'green', 'gray']);
     //largerTxtBtnの'title': 'larger'はfontSizeChangeOnBtnClicked()のイベントでフラグとして使用しているので消しては駄目
-    let largerTxtBtn = createElementAndSetAttribute('i', { 'class': 'fa fa-search-plus', 'role': 'button', 'aria-hidden': 'true', 'title': 'larger' });
+    let largerTxtBtn = createElementAndSetAttribute('i', {
+      'class': 'fa fa-search-plus', 'role': 'button', 'aria-hidden': 'true', 'title': 'larger'
+    });
     //smallerTxtBtnの'title': 'smaller'はfontSizeChangeOnBtnClicked()のイベントでフラグとして使用しているので消しては駄目
-    let smallerTxtBtn = createElementAndSetAttribute('i', { 'class': 'fa fa-search-minus', 'role': 'button', 'aria-hidden': 'true', 'title': 'smaller' });
-    let closeBtn = createElementAndSetAttribute('i', { 'class': 'fa fa-times', 'role': 'button', 'aria-hidden': 'true', 'title': 'close' });
+    let smallerTxtBtn = createElementAndSetAttribute('i', {
+      'class': 'fa fa-search-minus', 'role': 'button', 'aria-hidden': 'true', 'title': 'smaller'
+    });
+    let closeBtn = createElementAndSetAttribute('i', {
+      'class': 'fa fa-times', 'role': 'button', 'aria-hidden': 'true', 'title': 'close'
+    });
 
     //閉じるボタンを押した時にメニューバーをremoveする
     closeBtn.addEventListener('click', function (clickObject) {
       showTarget.removeChild(clickObject.target.parentElement);
     });
-
-    //色のボタンに付箋要素の背景色を変更するイベントを設置
-    yellowBtn.addEventListener('click', colorChangeOnBtnClicked);
-    blueBtn.addEventListener('click', colorChangeOnBtnClicked);
-    pinkBtn.addEventListener('click', colorChangeOnBtnClicked);
-    greenBtn.addEventListener('click', colorChangeOnBtnClicked);
-    grayBtn.addEventListener('click', colorChangeOnBtnClicked);
 
     //テキスト拡大ボタンを押した時にフォントサイズを変更するイベントを設置
     largerTxtBtn.addEventListener('click', fontSizeChangeOnBtnClicked);
@@ -321,7 +319,7 @@
     settingMenu.removeEventListener('mouseout', elementMoveOnSettingDrug);
 
     //settingMenuにボタン要素を格納
-    settingMenu = appendElements(settingMenu, [yellowBtn, blueBtn, pinkBtn, greenBtn, grayBtn, largerTxtBtn, smallerTxtBtn, closeBtn]);
+    settingMenu = appendElements(settingMenu, [...colorBtnList, largerTxtBtn, smallerTxtBtn, closeBtn]);
     //画面にメニューを表示する
     appendElements(showTarget, [settingMenu]);
 
@@ -343,29 +341,40 @@
      */
     function colorChangeOnBtnClicked(clickObject) {
       //クリックしたボタンから背景色を定義するクラス名を取り出す
-      let materialClassList = clickObject.target.classList;
-      let matchKeyWord = /^box__color--/;
-      let applyClassName = '';
-
-      //ループ処理の中で'box__color--'で始まるクラス名があればapplyClassNameに格納
-      for (let i = 0; i < materialClassList.length; i++) {
-        if (materialClassList[i].match(matchKeyWord)) applyClassName = materialClassList[i];
-      }
+      let applyClassName = getClassNameFromTarget(clickObject.target.classList, /^box__color--/);
 
       //付箋要素に適用されている背景色を定義するクラス名を調べる
       let targetElement = clickObject.target.parentElement.parentElement;
-      let targetClassList = targetElement.classList;
-      let removeClassName = '';
-
-      //ループ処理の中で'box__color--'で始まるクラス名があればremoveClassNameに格納
-      for (let i = 0; i < targetClassList.length; i++) {
-        if (targetClassList[i].match(matchKeyWord)) removeClassName = targetClassList[i];
-      }
+      let removeClassName = getClassNameFromTarget(targetElement.classList, /^box__color--/);
 
       //付箋要素からremoveClassNameを削除しapplyClassNameを適用する
       targetElement.classList.remove(removeClassName);
       targetElement.classList.add(applyClassName);
     }//--- colorChangeOnBtnClicked()
+
+    /**
+     *カラーボタンのDOM要素を生成しその配列をリターンする
+     *@param { array } colorNameList - 色を指定する配列
+     */
+    function createColorBtnArray(colorNameList) {
+      //引数のチェック
+      if (colorNameList instanceof Array !== true) throw new Error('In appendElement() at "materialElements" must be array');
+      //colorNameListをループで回す
+      let colorBtnList = [];
+      for (let key in colorNameList) {
+        //色ボタンの要素を生成
+        let thisColorBtn = createElementAndSetAttribute('i', {
+          'class': `box__headline--setting-color-btn box__color--${colorNameList[key]}`,
+          'role': 'button',
+          'aria-hidden': 'true',
+          'title': `change ${colorNameList[key]}`
+        });
+        //付箋要素の背景色を変更するイベントを追加し、配列に追加
+        thisColorBtn.addEventListener('click', colorChangeOnBtnClicked);
+        colorBtnList.push(thisColorBtn);
+      }
+      return colorBtnList;
+    }
 
     /**
      *テキスト拡大ボタンが押された時に付箋要素のテキストを大きくする
@@ -378,7 +387,6 @@
       let targetElementStyle = clickObject.target.parentElement.previousElementSibling.style;
       let currentFontSize = targetElementStyle.fontSize;
       let currentFontSizeValue = Number(currentFontSize.replace(/rem/, ''));
-      let unitOfFontSize = 'rem';
 
       switch (fontSizeDirection) {
         //フォントサイズを多くする処理
@@ -399,7 +407,7 @@
       }
 
       //要素に新たなフォントサイズを適用
-      targetElementStyle.fontSize = applyFontSizeValue + unitOfFontSize;
+      targetElementStyle.fontSize = `${applyFontSizeValue}rem`;
     }//--- fontSizeChangeOnBtnClicked()
   }//--- end elementSettingOnButtonClicked()
 
@@ -523,14 +531,8 @@
     //idを持つ要素が見つからなかったときのためのガード節
     if (savedTargetWrapper.length === 0) throw new Error(' In saveBoxValueToLocalStorage() don\'t found element of this id');
 
-    //背景色を定義するクラス名を探す
-    let currentClassList = savedTargetWrapper.classList;
-    let matchKeyWord = /^box__color--/;
-    let saveClassName = '';
-
-    for (let i = 0; i < currentClassList.length; i++) {
-      if (currentClassList[i].match(matchKeyWord)) saveClassName = currentClassList[i];
-    }
+    //背景色を定義するクラス名を取得する
+    let saveClassName = getClassNameFromTarget(savedTargetWrapper.classList, /^box__color--/)
 
     //情報を格納したオブジェクトを作成する
     let targetIdStatus = {
@@ -558,14 +560,8 @@
     let applyTargetWrapper = document.getElementById(applyKeyId);
     let applyTextareaElement = applyTargetWrapper.lastElementChild;
 
-    //背景色を定義するクラス名を探す
-    let currentClassList = applyTargetWrapper.classList;
-    let matchKeyWord = /^box__color--/;
-    let removeClassName = '';
-
-    for (let i = 0; i < currentClassList.length; i++) {
-      if (currentClassList[i].match(matchKeyWord)) removeClassName = currentClassList[i];
-    }
+    //背景色を定義するクラス名を取得
+    let removeClassName = getClassNameFromTarget(applyTargetWrapper.classList, /^box__color--/);
 
     for (let key in applyObject) {
       switch (key) {
@@ -601,5 +597,20 @@
       }
     }
   }//--- end applyBoxValueFromLocalStorage()
+
+  /**
+   *classListからを検索条件に引っかかるクラス名をリターンする
+   *@param { object } -.classList(DOM要素のプロパティから取得したもの)
+   *@param { RegExp } -検索条件
+   *@return matchClassName - 検索条件に引っかかるクラス名をリターンする
+   */
+  function getClassNameFromTarget(targetList, regExp) {
+    let matchClassName = '';
+
+    for (let i = 0; i < targetList.length; i++) {
+      if (targetList[i].match(regExp)) return matchClassName = targetList[i];
+    }
+    if (matchClassName === '') throw new Error('In getClassNameFromTarget() regExp maybe collect');
+  }
 
 })();
