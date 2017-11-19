@@ -20,51 +20,42 @@
  *  clientWidth : 'textarea width',
  *  clientHeight: 'textarea height',
  *  value       : 'textarea value',
+ *  fontSize    : 'textarea font-size'
  * }
  *
  * ***************** localStorage memo *****************
  *
  */
-
 (function() {
-
   /** STORAGEにはローカルストレージオブジェクトが格納される @const { object } */
   let STORAGE = localStorage;
-
-  STORAGE.clear(); //デバッグ用ローカルストレージをクリアする
-
   /** ローカルストレージに記憶する要素 @let { array } */
   let BOX_IDS = [];
-
   /** appendTargetIdは要素をhtmlにappendするための鍵となるId @const { string } */
   const SCREEN_TARGET = document.getElementById('js__append--target');
 
 
+  // STORAGE.clear(); //デバッグ用ローカルストレージをクリアする
 
-  window.addEventListener( 'load', function () {
+  window.addEventListener('load', function () {
 
     //STORAGEにIDSというプロパティがあるかどうかを調べ条件分岐させる
-    if ('IDS' in STORAGE) {
-      //STORAGEにIDSというプロパティが存在すれば２回目以降のロード
-      //ローカルストレージに保存された情報を画面に再現する
-      elementCreateFromArray();
-    } else {
-      //STORAGEにIDSというプロパティが存在しなければ1回目のロード
-      //STORAGE_IDSがundefinedの場合は付箋要素を1つ作成し画面に表示する
-      firstElementCreate();
-    }
+    //真ならローカルストレージの情報を画面に再現
+    //偽なら新たに1つの付箋要素を作成
+    ('IDS' in STORAGE) ? elementCreateFromArray(): firstElementCreate();
 
   });
 
 
   /**
-   *生成したユニークなidをもとに付箋要素を生成し、関連情報をローカルストレージに記憶する
+   *生成したユニークなidをもとに付箋要素を生成し、情報をローカルストレージに記憶する
    */
   function firstElementCreate() {
     //ユニークなidをを生成
     let uniqueId = createUniqueId();
     showBoxElementInScreen(uniqueId);
-  }//--- firstElementCreate()
+    controlIdsToLocalStorage(uniqueId, 'push');
+  }
 
   /**
    *ローカルストレージから取得した配列をループし、要素を生成する
@@ -77,12 +68,12 @@
       let thisId = BOX_IDS[key];
 
       //idを元に生成した付箋要素を画面に表示
-      appendElements(SCREEN_TARGET, [createBox(uniqueId)]);
+      appendElements(SCREEN_TARGET, [createBox(thisId)]);
 
       //ローカルストレージの情報を要素に適用する
-      applyBoxValueFromLocalStorage(uniqueId);
+      applyBoxValueFromLocalStorage(thisId);
     }
-  }//--- elementCreateFromArray()
+  }
 
   /**
    *idを元に要素生成しを画面に出力する
@@ -127,7 +118,11 @@
     boxHeadlineElement = appendElements(boxHeadlineElement, [appendButtonElement, settingButtonElement, removeButtonElement]);
 
     //boxHeadlineElementにイベントを追加
-    boxHeadlineElement.addEventListener('mousedown', elementMoveOnDrug);
+    boxHeadlineElement.addEventListener('mouseover', function (mouseoverObject) {
+      (mouseoverObject.target.children.length > 0) ?
+      this.addEventListener('mousedown', elementMoveOnDrug) :
+      this.removeEventListener('mousedown', elementMoveOnDrug);
+    });
 
     //boxTextareaElementはboxWrapperElementの子要素
     let boxTextareaElement = createElementAndSetAttribute('textarea', { 'class': 'box__textarea' });
@@ -135,8 +130,9 @@
 
     //boxTextareaにイベントを追加・削除(テキストエリアのリサイズ可能範囲でマウスポインタの形状を変更する)
     boxTextareaElement.addEventListener('mouseover', addEventCursorAllScrollOnMouseover);
-    boxTextareaElement.addEventListener('mouseout', function () {
+    boxTextareaElement.addEventListener('mouseout', function (mouseoutObject) {
       boxTextareaElement.removeEventListener('mouseover', addEventCursorAllScrollOnMouseover);
+      saveBoxValueToLocalStorage(mouseoutObject.target.parentElement.id);
     });
 
     boxWrapperElement = appendElements(boxWrapperElement, [boxHeadlineElement, boxTextareaElement]);
@@ -144,13 +140,9 @@
 
     boxWrapperElement.addEventListener('mousedown', controlZIndexOnBoxMousedown);
 
-
-    controlIdsToLocalStorage(keyId, 'push');
-
-
     //boxWrapperElementを返す
     return boxWrapperElement;
-  }//--- end createBox()
+  }
 
   /**
    *createUniqueIdは重複することのない文字列を返す()
@@ -171,16 +163,16 @@
 
     //uniqueIdをリターンして処理終了
     return uniqueId;
-  }//--- end createUniqueId()
+  }
 
   /**
    *elementMoveOnDrugはマウスの移動に合わせて要素を移動させる
    *マウスの移動が要素の移動よりも速い場合に備えてdocumentに対してmouseomoveイベントを設定する
-   *@param { object } mouseDownObject - mousedown時の情報が入ったオブジェクト
+   *@param { object } mousedownObject - mousedown時の情報が入ったオブジェクト
    */
-  function elementMoveOnDrug(mouseDownObject) {
+  function elementMoveOnDrug(mousedownObject) {
     //mousedownイベントの対象となる要素と移動処理を適用する親要素を取得
-    let [targetElement, parentElement] = [mouseDownObject.target, mouseDownObject.target.parentNode];
+    let [targetElement, parentElement] = [mousedownObject.target, mousedownObject.target.parentNode];
 
     //スクリーンをはみ出すかどうかを判定するために画面サイズを取得
     let [windowWidth, windowHeight] = [screen.width, screen.height];
@@ -197,9 +189,9 @@
 
     /**
      *mouseの移動に合わせて要素を移動させる
-     *@param { object } mouseMoveObject - mousemove時の情報が入ったオブジェクト
+     *@param { object } mousemoveObject - mousemove時の情報が入ったオブジェクト
      */
-    function elementMoveWithMouseMove(mouseMoveObject) {
+    function elementMoveWithMouseMove(mousemoveObject) {
       //mousemoveに合わせて位置を変更するために要素の位置情報を取得
       let [parentPositionLeft, parentPositionTop] = [parentElement.offsetLeft, parentElement.offsetTop];
       let [parentPositionRight, parentPositionBottom] = [(parentPositionLeft + parentWidth), (parentPositionTop + parentHeight)];
@@ -213,8 +205,8 @@
         parentPositionLeft = 0;
       } else {
         //画面内であればマウスポインタの移動値を適用する
-        parentPositionRight += mouseMoveObject.movementX;
-        parentPositionLeft += mouseMoveObject.movementX;
+        parentPositionRight += mousemoveObject.movementX;
+        parentPositionLeft += mousemoveObject.movementX;
       }
 
       //Y軸座標において要素がスクリーンを超えて移動しないためのガード節
@@ -226,25 +218,30 @@
         parentPositionTop = 0;
       } else {
         //画面内であればマウスポインタの移動値を適用する
-        parentPositionBottom += mouseMoveObject.movementY;
-        parentPositionTop += mouseMoveObject.movementY;
+        parentPositionBottom += mousemoveObject.movementY;
+        parentPositionTop += mousemoveObject.movementY;
       }
 
       //付箋要素にマウスポインタの移動値を適用
       parentElement.style.left = `${parentPositionLeft}px`;
       parentElement.style.top = `${parentPositionTop}px`;
-    }//--- end elementMoveWithMouseMove()
+    }
 
     //mouseup時にmousemoveのイベントを削除する
     document.addEventListener('mouseup', function () {
       //mousemonveイベントを削除
-      document.removeEventListener( 'mousemove', elementMoveWithMouseMove );
+      document.removeEventListener('mousemove', elementMoveWithMouseMove);
 
       //移動イベントが終わった際には、選択の禁止を解除する
       document.onselectstart = function () { return true; };
-      document.getElementsByTagName( 'textarea' ).Enable = true;
+      document.getElementsByTagName('textarea').Enable = true;
+
+      //位置情報をローカルストレージに保存する
+      saveBoxValueToLocalStorage(parentElement.id);
+      //このイベントを削除する
+      document.removeEventListener('mouseup', arguments.callee);
     });
-  }//--- end elementMoveOnDrug()
+  }
 
   /**
    *テキストエリアのリサイズ可能範囲(右下部分)にマウスポインタを合わせた場合にcursorプロパティにall-scrollを適用する
@@ -258,10 +255,16 @@
       let [cursorPositionX, cursorPositionY] = [mousemoveObject.offsetX, mousemoveObject.offsetY];
 
       //テキストエリアのリサイズ可能範囲(右下から15*15以内の範囲)かどうかを判定し、cursorプロパティにall-scrollを適用する
-      targetElement.style.cursor =
-        (cursorPositionX > (targetWidth - 15) && cursorPositionY > (targetHeight - 15)) ? 'all-scroll': 'auto';
+      if (cursorPositionX > (targetWidth - 15) && cursorPositionY > (targetHeight - 15)) {
+        targetElement.style.cursor = 'all-scroll';
+        targetElement.addEventListener('mousedown', textareaResize);
+      } else {
+        targetElement.style.cursor = 'auto';
+        targetElement.removeEventListener('mousedown', textareaResize);
+      }
     });
-  }//--- end addEventCursorAllScrollOnMouseover()
+    mouseoverObject.target.removeEventListener('mousemove', arguments.callee);
+  }
 
   /**
    *appendボタンがクリックされたときに要素を追加する
@@ -278,7 +281,12 @@
     appendBox.style.top = `${addPositionY}px`;
 
     appendElements(SCREEN_TARGET, [appendBox]);
-  }//--- end elementAppendOnButtonClicked()
+
+    //ローカルストレージに情報を記憶
+    controlIdsToLocalStorage(uniqueId, 'push');
+    saveBoxValueToLocalStorage(uniqueId);
+
+  }
 
   /**
    *settingボタンが押されたときにメニューバーを表示する(色を変えたりフォントサイズを変更したりする)
@@ -319,7 +327,7 @@
     settingMenu.removeEventListener('mouseout', elementMoveOnSettingDrug);
 
     //settingMenuにボタン要素を格納
-    settingMenu = appendElements(settingMenu, [...colorBtnList, largerTxtBtn, smallerTxtBtn, closeBtn]);
+    settingMenu = appendElements(settingMenu, [largerTxtBtn, ...colorBtnList, largerTxtBtn, smallerTxtBtn, closeBtn]);
     //画面にメニューを表示する
     appendElements(showTarget, [settingMenu]);
 
@@ -333,7 +341,7 @@
       (mouseoverObject.target.children.length > 0) ?
         this.addEventListener('mousedown', elementMoveOnDrug) :
         this.removeEventListener('mousedown', elementMoveOnDrug);
-    }//--- end elementMoveOnSettingDrug()
+    }
 
     /**
      *色のボタンがクリックされたときに付箋要素の背景色を変更する
@@ -350,7 +358,9 @@
       //付箋要素からremoveClassNameを削除しapplyClassNameを適用する
       targetElement.classList.remove(removeClassName);
       targetElement.classList.add(applyClassName);
-    }//--- colorChangeOnBtnClicked()
+      //更新情報をローカルストレージに保存
+      saveBoxValueToLocalStorage(targetElement.id);
+    }
 
     /**
      *カラーボタンのDOM要素を生成しその配列をリターンする
@@ -408,8 +418,8 @@
 
       //要素に新たなフォントサイズを適用
       targetElementStyle.fontSize = `${applyFontSizeValue}rem`;
-    }//--- fontSizeChangeOnBtnClicked()
-  }//--- end elementSettingOnButtonClicked()
+    }
+  }
 
   /**
    *付箋要素がクリックされたときに他の要素よりも表示を手前にする
@@ -427,7 +437,7 @@
       //クリックイベントが設定された要素のidと一致した場合に手前に表示する
       thisBox.style.zIndex = ( thisBox.id === mousedownBoxId ) ? 101: 100;
     }
-  }//--- end controlZIndexOnBoxMousedown()
+  }
 
   /**
    *removeボタンが押されたときに要素をremoveする
@@ -448,7 +458,9 @@
       //新たな付箋要素を作成して表示する
       firstElementCreate();
     }
-  }//--- end elementRemoveOnButtonClicked()
+    //ローカルストレージから情報を削除
+    controlIdsToLocalStorage(removeElement.id, 'remove');
+  }
 
   /**
    *createElementAndSetAttributeは引数を元にhtml要素を返す
@@ -471,7 +483,7 @@
 
     //要素を返す
     return element;
-  }//--- end createElementAndSetAttribute()
+  }
 
   /**
    *appendElementsはtargetElementに対してmaterialElementsをループで回してappendchildする
@@ -490,36 +502,40 @@
 
     //targetElementを返す
     return targetElement;
-  }//--- end appendElements()
+  }
 
   /**
+   *orderの指示に応じてBOX_IDSに対して特定のidを追加・削除しローカルストレージに保存する
    *@param { string } keyId - 配列に対して操作をする鍵となるid
-    *@param { string } order - 値が'push'の場合は配列に追加、'pop'の場合は配列から削除
-    */
+   *@param { string } order - 値が'push'の場合は配列に追加、'remove'の場合は配列から削除
+   */
   function controlIdsToLocalStorage(keyId, order) {
     //渡ってくる引数が期待通りかどうかを判定するガード節
     if (typeof keyId !== 'string') throw new Error('In controlIdsToLocalStorage() at "keyId" must be string');
-    if (order !== 'push' && order !== 'pop') throw new Error('In controlIdsToLocalStorage() at "order" must be string / push or pop');
+    if (order !== 'push' && order !== 'remove') throw new Error('In controlIdsToLocalStorage() at "order" must be string / push or remove');
 
-    //orderが'push'の場合はBOX_IDSにkeyIdを追加、orderが'pop'の場合はBOX_IDSからkeyIdを削除
+    //orderが'push'の場合はBOX_IDSにkeyIdを追加、orderが'remove'の場合はBOX_IDSからkeyIdを削除
     switch (order) {
       case 'push':
         BOX_IDS.push(keyId);
         break;
-      case 'pop':
-        BOX_IDS.pop(keyId);
+      case 'remove':
+        for (let index in BOX_IDS) {
+          if (BOX_IDS[index] === keyId) BOX_IDS.splice(index, 1);
+        }
+        STORAGE.removeItem(keyId);
         break;
-      //orderが'push'か'pop'以外の場合はガードしているのでdefaultは設定しない
+      //orderが'push'か'remove'以外の場合はガードしているのでdefaultは設定しない
     }
 
     //ローカルストレージに配列は格納できないので、json形式に変換してから格納
     STORAGE.IDS = JSON.stringify(BOX_IDS);
-  }//--- end controlIdsToLocalStorage()
+  }
 
   /**
    *idを元に付箋要素の表示情報を取得し、ローカルストレージに保存する
-    *@param { string } saveTargetId - 付箋要素を特定するためのid
-    */
+   *@param { string } saveTargetId - 付箋要素を特定するためのid
+   */
   function saveBoxValueToLocalStorage(saveTargetId) {
     //渡ってくる引数が期待通りかどうかを判定するガード節
     if (typeof saveTargetId !== 'string') throw new Error('In saveBoxValueToLocalStorage() at "saveTargetId" must be string');
@@ -532,25 +548,25 @@
     if (savedTargetWrapper.length === 0) throw new Error(' In saveBoxValueToLocalStorage() don\'t found element of this id');
 
     //背景色を定義するクラス名を取得する
-    let saveClassName = getClassNameFromTarget(savedTargetWrapper.classList, /^box__color--/)
+    let saveClassName = getClassNameFromTarget(savedTargetWrapper.classList, /^box__color--/);
 
     //情報を格納したオブジェクトを作成する
     let targetIdStatus = {
-      'offsetLeft': savedTargetWrapper.offsetLeft,      //画面の左端からの距離
-      'offsetTop': savedTargetWrapper.offsetTop,        //画面の上端からの距離
-      'className': saveClassName,                       //背景色を定義するクラス名
-      'clientWidth': savedTextareaElement.clientWidth,  //テキストエリアの横幅
-      'clientHeight': savedTextareaElement.clientHeight,//テキストエリアの縦幅
-      'value': savedTextareaElement.value,              //テキストエリアの値
+      'offsetLeft': savedTargetWrapper.style.left,             //画面の左端からの距離
+      'offsetTop': savedTargetWrapper.style.top,               //画面の上端からの距離
+      'className': saveClassName,                              //背景色を定義するクラス名
+      'clientWidth': `${savedTextareaElement.clientWidth}px`,  //テキストエリアの横幅
+      'clientHeight': `${savedTextareaElement.clientHeight}px`,//テキストエリアの縦幅
+      'value': savedTextareaElement.value,                     //テキストエリアの値
     };
 
     STORAGE.setItem(saveTargetId, JSON.stringify(targetIdStatus));
-  }//--- saveBoxValueToLocalStorage()
+  }
 
   /**
    *applyKeyIdを元にローカルストレージから情報を取り出し、applyKeyIdに対応した要素にスタイルを適用する
-    *@param { string } applyKeyId - 適用する要素のid、ローカルストレージから呼び出すプロパティとしても使う
-    */
+   *@param { string } applyKeyId - 適用する要素のid、ローカルストレージから呼び出すプロパティとしても使う
+   */
   function applyBoxValueFromLocalStorage(applyKeyId) {
     //渡ってくる引数が期待通りかどうかを判定するガード節
     if (typeof applyKeyId !== 'string') throw new Error('In applyBoxValueFromLocalStorage() at "applyKeyId" must be string');
@@ -564,31 +580,32 @@
     let removeClassName = getClassNameFromTarget(applyTargetWrapper.classList, /^box__color--/);
 
     for (let key in applyObject) {
+      let thisValue = applyObject[key];
       switch (key) {
         //画面の左からの表示位置を適用
         case 'offsetLeft':
-          applyTargetWrapper.style.left = applyObject[key];
+          applyTargetWrapper.style.left = thisValue;
           break;
         //画面の上からの表示位置を適用
         case 'offsetTop':
-          applyTargetWrapper.style.top = applyObject[key];
+          applyTargetWrapper.style.top = thisValue;
           break;
         //背景色を定義するクラス名を適用
         case 'className':
           applyTargetWrapper.classList.remove(removeClassName);
-          applyTargetWrapper.classList.add(applyObject[key]);
+          applyTargetWrapper.classList.add(thisValue);
           break;
         //横幅を適用する
         case 'clientWidth':
-          applyTextareaElement.style.width = applyObject[key];
+          applyTextareaElement.style.width = thisValue;
           break;
         //高さを適用する
         case 'clientHeight':
-          applyTextareaElement.style.height = applyObject[key];
+          applyTextareaElement.style.height = thisValue;
           break;
         //値を適用する
         case 'value':
-          applyTextareaElement.value = applyObject[key];
+          applyTextareaElement.value = thisValue;
           break;
         //想定外のときはエラーを出す
         default:
@@ -596,7 +613,7 @@
           break;
       }
     }
-  }//--- end applyBoxValueFromLocalStorage()
+  }
 
   /**
    *classListからを検索条件に引っかかるクラス名をリターンする
@@ -605,12 +622,40 @@
    *@return matchClassName - 検索条件に引っかかるクラス名をリターンする
    */
   function getClassNameFromTarget(targetList, regExp) {
+    if (typeof targetList !== 'object') throw new Error('In getClassNameFromTarget() at "targetList" must be array');
     let matchClassName = '';
 
     for (let i = 0; i < targetList.length; i++) {
       if (targetList[i].match(regExp)) return matchClassName = targetList[i];
     }
-    if (matchClassName === '') throw new Error('In getClassNameFromTarget() regExp maybe collect');
+    //もし検索条件に何も引っかからなければエラーを吐く
+    if (matchClassName === '') throw new Error(`In getClassNameFromTarget() regExp[${regExp}] maybe wrong`);
+  }
+
+  /**
+   *mousedown時にテキストエリアをリサイズする
+   *@param { object } mousedownObject -mousedown時の情報が入ったオブジェクト
+   */
+  function textareaResize(mousedownObject) {
+    let targetElement = mousedownObject.target;
+
+    targetElement.addEventListener('mousemove', textareaResizeOnMouseMove);
+    document.addEventListener('mouseup', function () {
+      targetElement.removeEventListener('mousemove', textareaResizeOnMouseMove);
+      document.removeEventListener('mouseup', arguments.callee);
+    });
+
+    /**
+     *マウスの移動値をテキストエリアに適用
+     *@param { object } mousemoveObject
+     */
+    function textareaResizeOnMouseMove(mousemoveObject) {
+      let resizeTarget = mousemoveObject.target;
+      let applyWidth = resizeTarget.clientWidth + mousemoveObject.movementX;
+      let applyHeight = resizeTarget.clientHeight + mousemoveObject.movementY;
+      resizeTarget.style.width = `${applyWidth}px`
+      resizeTarget.style.height = `${applyHeight}px`
+    }
   }
 
 })();
