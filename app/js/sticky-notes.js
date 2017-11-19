@@ -16,6 +16,7 @@
  * {
  *  offsetLeft  : 'distance from screen left',
  *  offsetTop   : 'distance from screen top',
+ *  zIndex      : 'z-index',
  *  className   : 'className define background-color',
  *  clientWidth : 'textarea width',
  *  clientHeight: 'textarea height',
@@ -103,7 +104,7 @@
     let boxHeadlineElement = createElementAndSetAttribute('h1', { 'class': 'box__headline' });
     let appendButtonElement = createElementAndSetAttribute('i', { 'class': 'fa fa-plus', 'role': 'button', 'aria-hidden': 'true' });
     let settingButtonElement = createElementAndSetAttribute('i', { 'class': 'fa fa-cog', 'role': 'button', 'aria-hidden': 'true' });
-    let removeButtonElement = createElementAndSetAttribute( 'i', { 'class': 'fa fa-trash-o', 'role': 'button' , 'aria-hidden': 'true' } );
+    let removeButtonElement = createElementAndSetAttribute('i', { 'class': 'fa fa-trash-o', 'role': 'button', 'aria-hidden': 'true' });
 
     //appendButtonElementにイベントを追加
     appendButtonElement.addEventListener('click', elementAppendOnButtonClicked);
@@ -120,8 +121,8 @@
     //boxHeadlineElementにイベントを追加
     boxHeadlineElement.addEventListener('mouseover', function (mouseoverObject) {
       (mouseoverObject.target.children.length > 0) ?
-      this.addEventListener('mousedown', elementMoveOnDrug) :
-      this.removeEventListener('mousedown', elementMoveOnDrug);
+        this.addEventListener('mousedown', elementMoveOnDrug) :
+        this.removeEventListener('mousedown', elementMoveOnDrug);
     });
 
     //boxTextareaElementはboxWrapperElementの子要素
@@ -132,7 +133,10 @@
     boxTextareaElement.addEventListener('mouseover', addEventCursorAllScrollOnMouseover);
     boxTextareaElement.addEventListener('mouseout', function (mouseoutObject) {
       boxTextareaElement.removeEventListener('mouseover', addEventCursorAllScrollOnMouseover);
-      saveBoxValueToLocalStorage(mouseoutObject.target.parentElement.id);
+    });
+    //テキスト変更を監視するイベント
+    boxTextareaElement.addEventListener('change', function (changeObject) {
+      saveBoxValueToLocalStorage(changeObject.target.parentElement.id);
     });
 
     boxWrapperElement = appendElements(boxWrapperElement, [boxHeadlineElement, boxTextareaElement]);
@@ -557,7 +561,7 @@
       'className': saveClassName,                              //背景色を定義するクラス名
       'clientWidth': `${savedTextareaElement.clientWidth}px`,  //テキストエリアの横幅
       'clientHeight': `${savedTextareaElement.clientHeight}px`,//テキストエリアの縦幅
-      'value': savedTextareaElement.value,                     //テキストエリアの値
+      'value': savedTextareaElement.value                      //テキストエリアの値
     };
 
     STORAGE.setItem(saveTargetId, JSON.stringify(targetIdStatus));
