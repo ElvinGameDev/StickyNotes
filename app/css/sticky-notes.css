@@ -2,6 +2,8 @@
 html, body {
   width: 100vw;
   height: 100vh;
+  overflow: hidden;
+  position: relative;
   font-size: 10px;
   font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI","Noto Sans Japanese","ヒラギノ角ゴ ProN W3", Meiryo, sans-serif; }
 
@@ -19,8 +21,8 @@ html, body {
   height: auto;
   -webkit-box-sizing: content-box;
           box-sizing: content-box;
-  -webkit-box-shadow: 0px 0px 5px #ccc;
-          box-shadow: 0px 0px 5px #ccc;
+  -webkit-box-shadow: 0px 0px 5px gray;
+          box-shadow: 0px 0px 5px gray;
   position: absolute;
   z-index: 100; }
   .box__headline {
@@ -108,3 +110,83 @@ html, body {
     background: #97ff67; }
   .box__color--gray {
     background: #aaa; }
+
+.choice {
+  min-width: 400px;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  position: absolute;
+  z-index: 5500;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
+  background: white;
+  border: solid 1px #aaa;
+  text-align: center;
+  border-radius: 5px;
+  -webkit-box-shadow: 0 0 5px gray;
+          box-shadow: 0 0 5px gray; }
+  .choice__headline {
+    width: 100%;
+    -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+    margin-bottom: 2rem;
+    font-size: 1.5rem; }
+    .choice__headline:before {
+      content: '';
+      width: 100%;
+      height: 2rem;
+      display: block;
+      background: #ccc;
+      border-radius: 5px 5px 0px 0px;
+      margin-bottom: 2rem; }
+  .choice__btns {
+    width: 100%;
+    margin-bottom: 2rem;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-pack: distribute;
+        justify-content: space-around; }
+    .choice__btns > li {
+      list-style: none;
+      padding-top: 0.3rem;
+      padding-bottom: 0.3rem;
+      width: 10rem;
+      border-radius: 3px;
+      -webkit-user-select: none;
+         -moz-user-select: none;
+          -ms-user-select: none;
+              user-select: none; }
+      .choice__btns > li:first-child {
+        margin-left: 1rem; }
+      .choice__btns > li:last-child {
+        margin-right: 1rem; }
+      .choice__btns > li:hover {
+        cursor: pointer;
+        border: solid 1px transparent;
+        opacity: .9; }
+    .choice__btns--delete {
+      background: #ff723a;
+      color: #fff;
+      border: solid 1px gray; }
+    .choice__btns--cancel {
+      background: #f0f0f0;
+      color: #444;
+      border: solid 1px #bbb; }
+    .choice__btns--save {
+      background: #5784ff;
+      color: #fff;
+      border: solid 1px gray; }
+
+.modal {
+  position: absolute;
+  z-index: 5000;
+  width: 100vw;
+  height: 100vh;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
+  background: rgba(100, 100, 100, 0.3); }

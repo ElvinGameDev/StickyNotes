@@ -600,19 +600,108 @@
     // 削除する対象となる要素を取得
     let removeElement = clickObject.target.parentElement.parentElement;
 
+    let validateTarget = '';
+    for (let i = 0; i < removeElement.children.length; i++) {
+      let thisNode = removeElement.children[i];
+      if (thisNode.tagName === 'TEXTAREA') {
+        validateTarget = thisNode;
+      }
+    }
+    // テキストエリアに入力があるかどうかで条件分岐
+    (validateTarget.value !== '') ?
+      showChoices(removeElement, validateTarget.value) : // 選択肢を表示しユーザーに注意換気
+      elementDelete(removeElement);// 素直に要素を削除
+  }
+
+  /**
+   * 要素を画面から削除する
+   * @param {object} deleteElement - 削除する対象となる要素
+   */
+  function elementDelete(deleteElement) {
     // 画面から削除する
-    SCREEN_TARGET.removeChild(removeElement);
+    SCREEN_TARGET.removeChild(deleteElement);
 
     // 全ての子要素がなくなったときにはlenghtが0になるので新たな付箋要素を生成して表示する
     if (SCREEN_TARGET.children.length === 0) {
       // 情報を記憶する要素が全てなくなるのでローカルストレージをクリア
       STORAGE.clear();
-
       // 新たな付箋要素を作成して表示する
       firstElementCreate();
     }
     // ローカルストレージから情報を削除
-    controlIdsToLocalStorage(removeElement.id, 'remove');
+    controlIdsToLocalStorage(deleteElement.id, 'remove');
+  }
+
+  /**
+   * 選択肢を表示しユーザーに注意喚起、選択肢に応じてイベントを実行
+   * 選択肢 {削除, キャンセル, ファイルに書き出す}
+   * @param {object} deleteElement - 削除対象のDOM要素
+   * @param {string} validateData - テキストエリアに入力された情報
+   */
+  function showChoices(deleteElement, validateData) {
+    // 選択肢の箱を生成
+    let choiceBox = createElementAndSetAttribute('section', {
+      'class': 'choice',
+    });
+    // 見出し要素を生成
+    let headlineElement = createElementAndSetAttribute('h1', {
+      'class': 'choice__headline',
+    });
+    headlineElement.textContent = 'Do you want to delete this memo?';
+    // ボタン一覧を生成
+    let btnLines = createElementAndSetAttribute('ul', {
+      'class': 'choice__btns',
+    });
+    // 削除ボタンを生成
+    let deleteChoice = createElementAndSetAttribute('li', {
+      'class': 'choice__btns--delete',
+      'title': 'delete',
+    });
+    deleteChoice.textContent = 'delete';
+    // 削除イベントを設置
+    deleteChoice.addEventListener('click', function(clickObject) {
+      elementDelete(deleteElement);
+      SCREEN_TARGET.removeChild(choiceBox);
+      SCREEN_TARGET.removeChild(modal);
+    });
+    // キャンセルボタンを生成
+    let cancelChoice = createElementAndSetAttribute('li', {
+      'class': 'choice__btns--cancel',
+      'title': 'cancel',
+    });
+    cancelChoice.textContent = 'cancel';
+    // キャンセルイベントを設置
+    cancelChoice.addEventListener('click', function(clickObject) {
+      SCREEN_TARGET.removeChild(choiceBox);
+      SCREEN_TARGET.removeChild(modal);
+    });
+    // 保存ボタンを生成
+    let saveChoice = createElementAndSetAttribute('li', {
+      'class': 'choice__btns--save',
+      'title': 'save',
+    });
+    saveChoice.textContent = 'save...';
+    // 保存イベントを設置
+    saveChoice.addEventListener('click', function(clickObject) {
+      console.info('save now');
+      if (window.File && window.FileReader && window.FileList && window.Blob) {
+        // Great success! All the File APIs are supported.
+        console.info('window file');
+        // TO DO
+      } else {
+        alert('The File APIs are not fully supported in this browser.');
+      }
+    });
+
+    // モーダルマスク要素の生成
+    let modal = createElementAndSetAttribute('div', {
+      'class': 'modal',
+    });
+
+    appendElements(btnLines, [deleteChoice, cancelChoice, saveChoice]);
+    appendElements(choiceBox, [headlineElement, btnLines]);
+
+    appendElements(SCREEN_TARGET, [choiceBox, modal]);
   }
 
   /**
