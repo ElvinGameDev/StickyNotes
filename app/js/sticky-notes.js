@@ -30,11 +30,29 @@
 (function() {
   /** STORAGEにはローカルストレージオブジェクトが格納される @const {object} */
   let STORAGE = localStorage;
-  /** ローカルストレージに記憶する要素 @let { array } */
+  /** ローカルストレージに記憶する要素 @let {array} */
   let BOX_IDS = [];
   /** appendTargetIdは要素をhtmlにappendするための鍵となるId @const {string} */
   const SCREEN_TARGET = document.getElementById('js__append--target');
+  /** 初期表示のフォントサイズ @const {string} */
+  const DEFAULT_FONTSIZE = '1.75rem';
 
+  /**
+   * 呼ぶたびにカウントを進める(付箋要素のz-indexを操作するときに使用する)
+   * @return {number}
+   */
+  const Z_INDEX_COUNTER = {
+    count: 100,
+    countUp: function() {
+      return this.count++;
+    },
+    countReset: function() {
+      return (this.count = 100);
+    },
+    getCount: function() {
+      return this.count;
+    },
+  };
 
   // STORAGE.clear(); //デバッグ用ローカルストレージをクリアする
 
@@ -155,31 +173,35 @@
     });
 
     // boxTextareaElementはboxWrapperElementの子要素
-    let boxTextareaElement =
-      createElementAndSetAttribute('textarea', {'class': 'box__textarea'});
-    boxTextareaElement.style.fontSize = '1.75rem';
+    let boxTextareaElement = createElementAndSetAttribute('textarea', {
+      'class': 'box__textarea',
+    });
+    boxTextareaElement.style.fontSize = DEFAULT_FONTSIZE;
 
     // boxTextareaにイベントを追加・削除(テキストエリアのリサイズ可能範囲でマウスポインタの形状を変更する)
-    boxTextareaElement
-      .addEventListener('mouseover', addEventCursorAllScrollOnMouseover);
+    boxTextareaElement.addEventListener(
+      'mouseover', addEventCursorAllScrollOnMouseover
+    );
     boxTextareaElement.addEventListener('mouseout', function(mouseoutObject) {
-      boxTextareaElement
-        .removeEventListener('mouseover', addEventCursorAllScrollOnMouseover);
+      boxTextareaElement.removeEventListener(
+        'mouseover', addEventCursorAllScrollOnMouseover
+      );
     });
     // テキスト変更を監視するイベント
     boxTextareaElement.addEventListener('change', function(changeObject) {
       saveBoxValueToLocalStorage(changeObject.target.parentElement.id);
     });
 
-    boxWrapperElement =
-      appendElements(
-        boxWrapperElement,
-        [boxHeadlineElement, boxTextareaElement]
-      );
-    boxWrapperElement.style.zIndex = 100;
+    boxWrapperElement = appendElements(
+      boxWrapperElement,
+      [boxHeadlineElement, boxTextareaElement]
+    );
+    boxWrapperElement.style.zIndex = Z_INDEX_COUNTER.countUp();
 
-    boxWrapperElement
-      .addEventListener('mousedown', controlZIndexOnBoxMousedown);
+    // z-indexを操作するイベントを追加
+    boxWrapperElement.addEventListener(
+      'mousedown', controlZIndexOnBoxMousedown
+    );
 
     // boxWrapperElementを返す
     return boxWrapperElement;
@@ -191,10 +213,10 @@
    */
   function createUniqueId() {
     // characterGroupは生成される文字列の素材
-    // idLengthは生成する文字列の長さ
-    // uniqueIdは最終的にリターンする
     let characterGroup = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    // idLengthは生成する文字列の長さ
     let idLength = 25;
+    // uniqueIdは最終的にリターンする
     let uniqueId = '';
 
     // idLengthの数だけループしてランダムに選択した値をuniqueIdに格納していく
@@ -481,6 +503,11 @@
      */
     function fontSizeChangeOnBtnClicked(clickObject) {
       let fontSizeDirection = clickObject.target.title;
+      if (fontSizeDirection !== 'larger' && fontSizeDirection !== 'smaller') {
+        throw new Error(
+          'In fontSizeChangeOnBtnClicked() at fontSizeDirection unexpected'
+        );
+      }
 
       // スタイルの適用対象要素と現在のフォントサイズを取得
       let wrapperElement = clickObject.target.parentElement.parentElement;
@@ -504,11 +531,7 @@
           currentFontSizeValue - 0.25 :
           currentFontSizeValue + 0;
         break;
-      default:
-        throw new Error(
-          'In fontSizeChangeOnBtnClicked() at fontSizeDirection unexpected'
-        );
-        break;
+      // 上記以外のケースはガードしているのでdefaultは設定しない
       }
 
       // 要素に新たなフォントサイズを適用
@@ -526,13 +549,34 @@
     let mousedownBoxId = this.id;
     // 画面に表示されている付箋要素の一覧を取得
     let boxElements = SCREEN_TARGET.children;
+    // z-indexのカウンタを初期化
+    Z_INDEX_COUNTER.countReset();
 
+    // 付箋要素の画面の重なり順を記憶しておくためのオブジェクト
+    let idAndZIndexList = {};
     // 付箋要素の一覧をループで回す
     for (let i = 0; i < boxElements.length; i++) {
       let thisBox = boxElements[i];
-      // クリックイベントが設定された要素のidと一致した場合に手前に表示する
-      thisBox.style.zIndex = ( thisBox.id === mousedownBoxId ) ? 101: 100;
+      // mousedownイベントのtargetでなければidAndZIndexListに格納していく
+      if (thisBox.id !== mousedownBoxId) {
+        idAndZIndexList[thisBox.style.zIndex] = thisBox.id;
+      }
     }
+    // 上記のループで取得したオブジェクトはkeyをz-index値にしているので自動でソートされている
+    // ループで新たにz-indexを適用していく
+    for (let key in idAndZIndexList) {
+      if (idAndZIndexList[key] === null) continue;
+      document.getElementById(
+        idAndZIndexList[key]
+      ).style.zIndex = Z_INDEX_COUNTER.countUp();
+      // ローカルストレージの情報を更新する
+      saveBoxValueToLocalStorage(idAndZIndexList[key]);
+    }
+    document.getElementById(
+      mousedownBoxId
+    ).style.zIndex = Z_INDEX_COUNTER.countUp();
+    // ローカルストレージの情報を更新する
+    saveBoxValueToLocalStorage(mousedownBoxId);
   }
 
   /**
@@ -638,6 +682,7 @@
       BOX_IDS.push(keyId);
       break;
     case 'remove':
+      // BOX_IDSからkeyIdを削除
       for (let index in BOX_IDS) {
         if (BOX_IDS[index] === keyId) BOX_IDS.splice(index, 1);
       }
@@ -646,7 +691,7 @@
     // orderが'push'か'remove'以外の場合はガードしているのでdefaultは設定しない
     }
 
-    // ローカルストレージに配列は格納できないので、json形式に変換してから格納
+    // ローカルストレージに配列は保存できないので、json形式に変換してから格納
     STORAGE.IDS = JSON.stringify(BOX_IDS);
   }
 
@@ -695,6 +740,8 @@
       'offsetLeft': savedTargetWrapper.style.left,
       // 画面の上端からの距離
       'offsetTop': savedTargetWrapper.style.top,
+      // 要素のz-indexを記憶
+      'zIndex': savedTargetWrapper.style.zIndex,
       // 背景色を定義するクラス名
       'className': saveClassName,
       // テキストエリアの横幅
@@ -707,7 +754,6 @@
       'value': savedTextareaElement.value,
     };
 
-    console.info(targetIdStatus);
     STORAGE.setItem(saveTargetId, JSON.stringify(targetIdStatus));
   }
 
@@ -744,6 +790,10 @@
       // 画面の上からの表示位置を適用
       case 'offsetTop':
         applyTargetWrapper.style.top = thisValue;
+        break;
+      // 付箋要素のz-indexを適用
+      case 'zIndex':
+        applyTargetWrapper.style.zIndex = thisValue;
         break;
       // 背景色を定義するクラス名を適用
       case 'className':
