@@ -131,8 +131,8 @@ html, body {
     width: 100%;
     -webkit-box-sizing: border-box;
             box-sizing: border-box;
-    margin-bottom: 2rem;
-    font-size: 1.5rem; }
+    font-size: 1.5rem;
+    margin-bottom: 1rem; }
     .choice__headline:before {
       content: '';
       width: 100%;
@@ -141,6 +141,9 @@ html, body {
       background: #ccc;
       border-radius: 5px 5px 0px 0px;
       margin-bottom: 2rem; }
+  .choice__explain {
+    font-size: 1.4rem;
+    margin-bottom: 2rem; }
   .choice__btns {
     width: 100%;
     margin-bottom: 2rem;
@@ -155,6 +158,8 @@ html, body {
       padding-bottom: 0.3rem;
       width: 10rem;
       border-radius: 3px;
+      font-size: 1.4rem;
+      font-weight: 400;
       -webkit-user-select: none;
          -moz-user-select: none;
           -ms-user-select: none;

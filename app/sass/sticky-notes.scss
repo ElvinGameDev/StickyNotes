@@ -149,8 +149,8 @@ html, body {
   &__headline {
     width: 100%;
     box-sizing: border-box;
-    margin-bottom: 2rem;
     font-size: 1.5rem;
+    margin-bottom: 1rem;
 
     &:before {
       content: '';
@@ -161,6 +161,11 @@ html, body {
       border-radius: 5px 5px 0px 0px;
       margin-bottom: 2rem;
     }
+  }
+
+  &__explain {
+    font-size: 1.4rem;
+    margin-bottom: 2rem;
   }
 
   &__btns {
@@ -176,6 +181,8 @@ html, body {
       padding-bottom: 0.3rem;
       width: 10rem;
       border-radius: 3px;
+      font-size: 1.4rem;
+      font-weight: 400;
       user-select: none;
 
       &:first-child {

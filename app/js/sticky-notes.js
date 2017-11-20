@@ -446,7 +446,7 @@
     /**
      * ホバー時に付箋要素を移動させる
      * メニューバーの子要素の場合は付箋要素の移動イベントを削除する
-     * @param { object } mouseoverObject - mouseover時の情報が入ったオブジェクト
+     * @param {object} mouseoverObject - mouseover時の情報が入ったオブジェクト
      */
     function elementMoveOnSettingDrug(mouseoverObject) {
       // ホバー時のターゲットが子要素を含む場合はメニューバーなので移動イベントを追加
@@ -458,7 +458,7 @@
 
     /**
      * 色のボタンがクリックされたときに付箋要素の背景色を変更する
-     * @param { object } clickObject - クリック時の情報が入ったオブジェクト
+     * @param {object} clickObject - クリック時の情報が入ったオブジェクト
      */
     function colorChangeOnBtnClicked(clickObject) {
       // クリックしたボタンから背景色を定義するクラス名を取り出す
@@ -647,7 +647,11 @@
     let headlineElement = createElementAndSetAttribute('h1', {
       'class': 'choice__headline',
     });
-    headlineElement.textContent = 'Do you want to delete this memo?';
+    headlineElement.textContent = 'このメモを保存しない場合、その内容はすべて失われます。';
+    let explainElement = createElementAndSetAttribute('p', {
+      'class': 'choice__explain',
+    });
+    explainElement.textContent = 'このメモを破棄してもよろしいですか？';
     // ボタン一覧を生成
     let btnLines = createElementAndSetAttribute('ul', {
       'class': 'choice__btns',
@@ -657,30 +661,28 @@
       'class': 'choice__btns--delete',
       'title': 'delete',
     });
-    deleteChoice.textContent = 'delete';
+    deleteChoice.textContent = '保存しない';
     // 削除イベントを設置
     deleteChoice.addEventListener('click', function(clickObject) {
       elementDelete(deleteElement);
-      SCREEN_TARGET.removeChild(choiceBox);
-      SCREEN_TARGET.removeChild(modal);
+      removeElements(SCREEN_TARGET, [choiceBox, modal]);
     });
     // キャンセルボタンを生成
     let cancelChoice = createElementAndSetAttribute('li', {
       'class': 'choice__btns--cancel',
       'title': 'cancel',
     });
-    cancelChoice.textContent = 'cancel';
+    cancelChoice.textContent = 'キャンセル';
     // キャンセルイベントを設置
     cancelChoice.addEventListener('click', function(clickObject) {
-      SCREEN_TARGET.removeChild(choiceBox);
-      SCREEN_TARGET.removeChild(modal);
+      removeElements(SCREEN_TARGET, [choiceBox, modal]);
     });
     // 保存ボタンを生成
     let saveChoice = createElementAndSetAttribute('li', {
       'class': 'choice__btns--save',
       'title': 'save',
     });
-    saveChoice.textContent = 'save...';
+    saveChoice.textContent = '保存...';
     // 保存イベントを設置
     saveChoice.addEventListener('click', function(clickObject) {
       const remote = require('electron').remote;
@@ -696,15 +698,12 @@
         ],
         properties: ['openFile', 'createDirectory'],
       };
-      dialog.showSaveDialog(window, options,
-        // コールバック関数
-        function(filename) {
-          if (filename) {
-            let data = validateData;
-            writeFile(filename, data);
-          }
-        });
-      console.log('saved!');
+      dialog.showSaveDialog(window, options, function(filename) {
+        if (filename) {
+          let data = validateData;
+          writeFile(filename, data);
+        }
+      });
 
       /**
        *
@@ -715,6 +714,8 @@
         fs.writeFile(path, data, 'utf8', function(err) {
           if (err) {
             return console.log(err);
+          } else {
+            console.info('success');
           }
         });
       }
@@ -726,7 +727,7 @@
     });
 
     appendElements(btnLines, [deleteChoice, cancelChoice, saveChoice]);
-    appendElements(choiceBox, [headlineElement, btnLines]);
+    appendElements(choiceBox, [headlineElement, explainElement, btnLines]);
 
     appendElements(SCREEN_TARGET, [choiceBox, modal]);
   }
@@ -761,6 +762,28 @@
 
     // 要素を返す
     return element;
+  }
+
+  /**
+   * removeElementsはtargetElementに対してmaterialElementsをループで回してappendchildする
+   * @param {object} targetElement - appendchildの対象となる要素
+   * @param {array} materialElements - appendChildの素材となる要素軍群
+   * @return {object} targetElement - materialElementsをappendchild()して返す
+   */
+  function removeElements(targetElement, materialElements) {
+    // 引数のデータ型が期待通りかどうかを判定
+    if (typeof targetElement !== 'object') {
+      throw new Error('In appendElement() at "targetElement" must be object');
+    }
+    if (materialElements instanceof Array !== true) {
+      throw new Error('In appendElement() at "materialElements" must be array');
+    }
+
+    // targetElementに対してmaterialElementsをループで回してappendchildする
+    for (const key in materialElements) {
+      if (materialElements[key] === null) continue;
+      targetElement.removeChild(materialElements[key]);
+    }
   }
 
   /**
@@ -882,7 +905,7 @@
       // テキストエリアの値
       'value': savedTextareaElement.value,
     };
-
+    // ローカルストレージに保存
     STORAGE.setItem(saveTargetId, JSON.stringify(targetIdStatus));
   }
 
