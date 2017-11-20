@@ -54,7 +54,7 @@
     },
   };
 
-  // STORAGE.clear(); //デバッグ用ローカルストレージをクリアする
+  // STORAGE.clear(); // デバッグ用ローカルストレージをクリアする
 
   /**
    * ロード時にローカルストレージを呼び出し、処理を分岐させる
@@ -148,22 +148,23 @@
     });
 
     // appendButtonElementにイベントを追加
-    appendButtonElement
-      .addEventListener('click', elementAppendOnButtonClicked);
+    appendButtonElement.addEventListener(
+      'click', elementAppendOnButtonClicked
+    );
 
     // settingButtonElementにイベントを追加
-    settingButtonElement
-      .addEventListener('click', elementSettingOnButtonClicked);
+    settingButtonElement.addEventListener(
+      'click', elementSettingOnButtonClicked
+    );
 
     // removeButtonElementにイベントを追加
     removeButtonElement.addEventListener('click', elementRemoveOnButtonClicked);
 
     // boxHeadlineElementに子要素を追加
-    boxHeadlineElement =
-      appendElements(
-        boxHeadlineElement,
-        [appendButtonElement, settingButtonElement, removeButtonElement]
-      );
+    boxHeadlineElement = appendElements(
+      boxHeadlineElement,
+      [appendButtonElement, settingButtonElement, removeButtonElement]
+    );
 
     // boxHeadlineElementにイベントを追加
     boxHeadlineElement.addEventListener('mouseover', function(mouseoverObject) {
@@ -318,8 +319,9 @@
    * @param {object} mouseoverObject - mouseover時の情報が入ったオブジェクト
    */
   function addEventCursorAllScrollOnMouseover(mouseoverObject) {
-    mouseoverObject.target
-      .addEventListener('mousemove', cursorChangeOnMousemove);
+    mouseoverObject.target.addEventListener(
+      'mousemove', cursorChangeOnMousemove
+    );
     /**
      * マウスの位置がテキストエリアのリサイズ可能範囲(右下から15*15以内の範囲)かどうかを判定しスタイルを適用する
      * @param {object} mousemoveObject - mousemove時の情報が入ったオブジェクト
@@ -345,8 +347,9 @@
         targetElement.removeEventListener('mousedown', textareaResize);
       }
       // このイベントを削除
-      mouseoverObject.target
-        .removeEventListener('mousemove', cursorChangeOnMousemove);
+      mouseoverObject.target.addEventListener(
+        'mousemove', cursorChangeOnMousemove
+      );
     }
   }
 
@@ -366,6 +369,16 @@
     appendBox.style.top = `${addPositionY}px`;
 
     appendElements(SCREEN_TARGET, [appendBox]);
+
+    // 要素は基本的にイベント対象の下に追加
+    // もし画面からはみ出る場合は左上に表示
+    if (appendBox.clientHeight + addPositionY > screen.height) {
+      appendBox.style.left = '0px';
+      appendBox.style.top = '0px';
+    } else {
+      appendBox.style.left = `${addPositionX}px`;
+      appendBox.style.top = `${addPositionY}px`;
+    }
 
     // ローカルストレージに情報を記憶
     controlIdsToLocalStorage(uniqueId, 'push');
@@ -863,11 +876,11 @@
 
     /**
      * mouseuo時にイベントを削除、ローカルストレージを更新
-     * @param {object} mosueupObject - mouseup時の情報が入ったオブジェクト
+     * @param {object} mouseupObject - mouseup時の情報が入ったオブジェクト
      */
-    function onMouseupTextareaElement(mosueupObject) {
+    function onMouseupTextareaElement(mouseupObject) {
       // テキストエリアからmousemove時のリサイズ処理のイベントを削除
-      targetElement.removeEventListener('mousemove', onMouseupTextareaElement);
+      targetElement.removeEventListener('mousemove', textareaResizeOnMouseMove);
       // ローカルストレージの情報を更新
       saveBoxValueToLocalStorage(targetElement.parentElement.id);
       // documentからこのイベントを削除
@@ -876,7 +889,7 @@
 
     /**
      *マウスの移動値をテキストエリアに適用
-     *@param { object } mousemoveObject
+     *@param {object} mousemoveObject
      */
     function textareaResizeOnMouseMove(mousemoveObject) {
       let resizeTarget = mousemoveObject.target;
