@@ -683,13 +683,40 @@
     saveChoice.textContent = 'save...';
     // 保存イベントを設置
     saveChoice.addEventListener('click', function(clickObject) {
-      console.info('save now');
-      if (window.File && window.FileReader && window.FileList && window.Blob) {
-        // Great success! All the File APIs are supported.
-        console.info('window file');
-        // TO DO
-      } else {
-        alert('The File APIs are not fully supported in this browser.');
+      const remote = require('electron').remote;
+      const {dialog} = require('electron').remote;
+      let fs = require('fs');
+
+      let window = remote.getCurrentWindow();
+      let options = {
+        title: 'タイトル',
+        filters: [
+          {name: 'ドキュメント', extensions: ['txt', 'text']},
+          {name: 'All Files', extensions: ['*']},
+        ],
+        properties: ['openFile', 'createDirectory'],
+      };
+      dialog.showSaveDialog(window, options,
+        // コールバック関数
+        function(filename) {
+          if (filename) {
+            let data = validateData;
+            writeFile(filename, data);
+          }
+        });
+      console.log('saved!');
+
+      /**
+       *
+       * @param {*} path
+       * @param {*} data
+       */
+      function writeFile(path, data) {
+        fs.writeFile(path, data, 'utf8', function(err) {
+          if (err) {
+            return console.log(err);
+          }
+        });
       }
     });
 
