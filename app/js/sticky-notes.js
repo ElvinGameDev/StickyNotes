@@ -1,5 +1,5 @@
 /**
- *@fileoverview control event and data about sticky notes
+ *@fileoverview control event and data about StickyNotes
  *@author AkihisaOchi
  *
  * ***************** localStorage memo *****************
@@ -132,6 +132,34 @@
     boxWrapperElement.setAttribute('id', keyId);
 
     // boxHeadlineElementはboxWrapperElementの子要素
+    let boxHeadlineElement = createBoxHeadlineElement();
+
+    // boxTextareaElementはboxWrapperElementの子要素
+    let boxTextareaElement = createBoxTextareaElement();
+
+    // 付箋要素に子要素を格納する
+    boxWrapperElement = appendElements(
+      boxWrapperElement,
+      [boxHeadlineElement, boxTextareaElement]
+    );
+    // 奮戦要素のz-indexに値を適用
+    boxWrapperElement.style.zIndex = Z_INDEX_COUNTER.countUp();
+
+    // z-indexを操作するイベントを追加
+    boxWrapperElement.addEventListener(
+      'mousedown', controlZIndexOnBoxMousedown
+    );
+
+    // boxWrapperElementを返す
+    return boxWrapperElement;
+  }
+
+  /**
+   * 付箋のメニューバー要素を生成しリターンする
+   * @return {object} boxHeadlineElement - メニューバーのhtmlElement
+   */
+  function createBoxHeadlineElement() {
+    // boxHeadlineElementはboxWrapperElementの子要素
     let boxHeadlineElement = createElementAndSetAttribute('h1', {
       'class': 'box__headline',
     });
@@ -177,10 +205,18 @@
         this.removeEventListener('mousedown', elementMoveOnDrug);
     });
 
-    // boxTextareaElementはboxWrapperElementの子要素
+    return boxHeadlineElement;
+  }
+
+  /**
+   * テキストエリアの要素を生成しリターンする
+   * @return {object} boxTextareaElement - テキストエリアのhtmlElement
+   */
+  function createBoxTextareaElement() {
     let boxTextareaElement = createElementAndSetAttribute('textarea', {
       'class': 'box__textarea',
     });
+    // デフォルトのフォントサイズを設定
     boxTextareaElement.style.fontSize = DEFAULT_FONTSIZE;
 
     // boxTextareaにイベントを追加・削除(テキストエリアのリサイズ可能範囲でマウスポインタの形状を変更する)
@@ -197,19 +233,7 @@
       saveBoxValueToLocalStorage(changeObject.target.parentElement.id);
     });
 
-    boxWrapperElement = appendElements(
-      boxWrapperElement,
-      [boxHeadlineElement, boxTextareaElement]
-    );
-    boxWrapperElement.style.zIndex = Z_INDEX_COUNTER.countUp();
-
-    // z-indexを操作するイベントを追加
-    boxWrapperElement.addEventListener(
-      'mousedown', controlZIndexOnBoxMousedown
-    );
-
-    // boxWrapperElementを返す
-    return boxWrapperElement;
+    return boxTextareaElement;
   }
 
   /**
@@ -340,10 +364,10 @@
 
       // リサイズ可能範囲
       const resizableWidth = targetWidth - 15;
-      const resizableHieght = targetHeight - 15;
+      const resizableHeight = targetHeight - 15;
 
       // テキストエリアのリサイズ可能範囲(右下から15*15以内の範囲)かどうかを判定し、cursorプロパティにall-scrollを適用する
-      if (cursorX > resizableWidth && cursorY > resizableHieght) {
+      if (cursorX > resizableWidth && cursorY > resizableHeight) {
         targetElement.style.cursor = 'all-scroll';
         targetElement.addEventListener('mousedown', textareaResize);
       } else {
@@ -397,6 +421,16 @@
     // メニューを表示する要素の取得
     let showTarget = clickObject.target.parentElement.parentElement;
     // メニューバーの要素の生成
+    let settingMenu = createSettingMenu();
+    // 画面にメニューを表示する
+    appendElements(showTarget, [settingMenu]);
+  }
+
+  /**
+   * 設定メニューのhtml要素を生成しリターンする
+   * @return {object} settingMenu - 設定メニューのhtmlElement
+   */
+  function createSettingMenu() {
     let settingMenu = createElementAndSetAttribute('div', {
       'class': 'box__headline--setting',
     });
@@ -428,6 +462,7 @@
 
     // 閉じるボタンを押した時にメニューバーをremoveする
     closeBtn.addEventListener('click', function(clickObject) {
+      let showTarget = clickObject.target.parentElement.parentElement;
       showTarget.removeChild(clickObject.target.parentElement);
     });
 
@@ -444,119 +479,117 @@
       settingMenu,
       [largerTxtBtn, ...colorBtnList, largerTxtBtn, smallerTxtBtn, closeBtn]
     );
-    // 画面にメニューを表示する
-    appendElements(showTarget, [settingMenu]);
-
-    /**
-     * ホバー時に付箋要素を移動させる
-     * メニューバーの子要素の場合は付箋要素の移動イベントを削除する
-     * @param {object} mouseoverObject - mouseover時の情報が入ったオブジェクト
-     */
-    function elementMoveOnSettingDrug(mouseoverObject) {
-      // ホバー時のターゲットが子要素を含む場合はメニューバーなので移動イベントを追加
-      // 子要素を含まない場合はボタンなのでイベントを削除
-      (mouseoverObject.target.children.length > 0) ?
-        this.addEventListener('mousedown', elementMoveOnDrug) :
-        this.removeEventListener('mousedown', elementMoveOnDrug);
-    }
-
-    /**
-     * 色のボタンがクリックされたときに付箋要素の背景色を変更する
-     * @param {object} clickObject - クリック時の情報が入ったオブジェクト
-     */
-    function colorChangeOnBtnClicked(clickObject) {
-      // クリックしたボタンから背景色を定義するクラス名を取り出す
-      let applyClassName = getClassNameFromTarget(
-        clickObject.target.classList, /^box__color--/
-      );
-
-      // 付箋要素に適用されている背景色を定義するクラス名を調べる
-      let targetElement = clickObject.target.parentElement.parentElement;
-      let removeClassName = getClassNameFromTarget(
-        targetElement.classList, /^box__color--/
-      );
-
-      // 付箋要素からremoveClassNameを削除しapplyClassNameを適用する
-      targetElement.classList.remove(removeClassName);
-      targetElement.classList.add(applyClassName);
-      // 更新情報をローカルストレージに保存
-      saveBoxValueToLocalStorage(targetElement.id);
-    }
-
-    /**
-     * カラーボタンのDOM要素を生成しその配列をリターンする
-     * @param {array} colorNameList - 色を指定する配列
-     * @return {array} colorBtnList - カラーボタンのDOM要素を配列に詰めてリターンする
-     */
-    function createColorBtnArray(colorNameList) {
-      // 引数のチェック
-      if (colorNameList instanceof Array !== true) {
-        throw new Error(
-          'In appendElement() at "materialElements" must be array'
-        );
-      }
-      // colorNameListをループで回す
-      let colorBtnList = [];
-      for (let key in colorNameList) {
-        if (colorNameList[key] === null) continue;
-        let thisValue = colorNameList[key];
-        // 色ボタンの要素を生成
-        let thisColorBtn = createElementAndSetAttribute('i', {
-          'class': `box__headline--setting-color-btn box__color--${thisValue}`,
-          'role': 'button',
-          'aria-hidden': 'true',
-          'title': `change ${thisValue}`,
-        });
-        // 付箋要素の背景色を変更するイベントを追加し、配列に追加
-        thisColorBtn.addEventListener('click', colorChangeOnBtnClicked);
-        colorBtnList.push(thisColorBtn);
-      }
-      return colorBtnList;
-    }
-
-    /**
-     *テキスト拡大ボタンが押された時に付箋要素のテキストを大きくする
-     *@param {object} clickObject - クリック時の情報が入ったオブジェクト
-     */
-    function fontSizeChangeOnBtnClicked(clickObject) {
-      let fontSizeDirection = clickObject.target.title;
-      if (fontSizeDirection !== 'larger' && fontSizeDirection !== 'smaller') {
-        throw new Error(
-          'In fontSizeChangeOnBtnClicked() at fontSizeDirection unexpected'
-        );
-      }
-
-      // スタイルの適用対象要素と現在のフォントサイズを取得
-      let wrapperElement = clickObject.target.parentElement.parentElement;
-      let targetElementStyle =
-        clickObject.target.parentElement.previousElementSibling.style;
-      let currentFontSize = targetElementStyle.fontSize;
-      let currentFontSizeValue = Number(currentFontSize.replace(/rem/, ''));
-
-      switch (fontSizeDirection) {
-      // フォントサイズを多くする処理
-      case 'larger':
-      // 多きなりすぎないようにガード
-        applyFontSizeValue = (currentFontSizeValue < 4) ?
-          currentFontSizeValue + 0.25 :
-          currentFontSizeValue + 0;
-        break;
-      // フォントサイズを小さくする処理
-      case 'smaller':
-        // 小さくなりすぎないようにガード
-        applyFontSizeValue = (currentFontSizeValue > 1) ?
-          currentFontSizeValue - 0.25 :
-          currentFontSizeValue + 0;
-        break;
-      // 上記以外のケースはガードしているのでdefaultは設定しない
-      }
-
-      // 要素に新たなフォントサイズを適用
-      targetElementStyle.fontSize = `${applyFontSizeValue}rem`;
-      saveBoxValueToLocalStorage(wrapperElement.id);
-    }
+    return settingMenu;
   }
 
+  /**
+   * ホバー時に付箋要素を移動させる
+   * メニューバーの子要素の場合は付箋要素の移動イベントを削除する
+   * @param {object} mouseoverObject - mouseover時の情報が入ったオブジェクト
+   */
+  function elementMoveOnSettingDrug(mouseoverObject) {
+    // ホバー時のターゲットが子要素を含む場合はメニューバーなので移動イベントを追加
+    // 子要素を含まない場合はボタンなのでイベントを削除
+    (mouseoverObject.target.children.length > 0) ?
+      this.addEventListener('mousedown', elementMoveOnDrug) :
+      this.removeEventListener('mousedown', elementMoveOnDrug);
+  }
+
+  /**
+   * 色のボタンがクリックされたときに付箋要素の背景色を変更する
+   * @param {object} clickObject - クリック時の情報が入ったオブジェクト
+   */
+  function colorChangeOnBtnClicked(clickObject) {
+    // クリックしたボタンから背景色を定義するクラス名を取り出す
+    let applyClassName = getClassNameFromTarget(
+      clickObject.target.classList, /^box__color--/
+    );
+
+    // 付箋要素に適用されている背景色を定義するクラス名を調べる
+    let targetElement = clickObject.target.parentElement.parentElement;
+    let removeClassName = getClassNameFromTarget(
+      targetElement.classList, /^box__color--/
+    );
+
+    // 付箋要素からremoveClassNameを削除しapplyClassNameを適用する
+    targetElement.classList.remove(removeClassName);
+    targetElement.classList.add(applyClassName);
+    // 更新情報をローカルストレージに保存
+    saveBoxValueToLocalStorage(targetElement.id);
+  }
+
+  /**
+   * カラーボタンのDOM要素を生成しその配列をリターンする
+   * @param {array} colorNameList - 色を指定する配列
+   * @return {array} colorBtnList - カラーボタンのDOM要素を配列に詰めてリターンする
+   */
+  function createColorBtnArray(colorNameList) {
+    // 引数のチェック
+    if (colorNameList instanceof Array !== true) {
+      throw new Error(
+        'In appendElement() at "materialElements" must be array'
+      );
+    }
+    // colorNameListをループで回す
+    let colorBtnList = [];
+    for (let key in colorNameList) {
+      if (colorNameList[key] === null) continue;
+      let thisValue = colorNameList[key];
+      // 色ボタンの要素を生成
+      let thisColorBtn = createElementAndSetAttribute('i', {
+        'class': `box__headline--setting-color-btn box__color--${thisValue}`,
+        'role': 'button',
+        'aria-hidden': 'true',
+        'title': `change ${thisValue}`,
+      });
+      // 付箋要素の背景色を変更するイベントを追加し、配列に追加
+      thisColorBtn.addEventListener('click', colorChangeOnBtnClicked);
+      colorBtnList.push(thisColorBtn);
+    }
+    return colorBtnList;
+  }
+
+  /**
+   *テキスト拡大ボタンが押された時に付箋要素のテキストを大きくする
+   *@param {object} clickObject - クリック時の情報が入ったオブジェクト
+   */
+  function fontSizeChangeOnBtnClicked(clickObject) {
+    let fontSizeDirection = clickObject.target.title;
+    if (fontSizeDirection !== 'larger' && fontSizeDirection !== 'smaller') {
+      throw new Error(
+        'In fontSizeChangeOnBtnClicked() at fontSizeDirection unexpected'
+      );
+    }
+
+    // スタイルの適用対象要素と現在のフォントサイズを取得
+    let wrapperElement = clickObject.target.parentElement.parentElement;
+    let targetElementStyle =
+      clickObject.target.parentElement.previousElementSibling.style;
+    let currentFontSize = targetElementStyle.fontSize;
+    let currentFontSizeValue = Number(currentFontSize.replace(/rem/, ''));
+
+    switch (fontSizeDirection) {
+    // フォントサイズを多くする処理
+    case 'larger':
+    // 多きなりすぎないようにガード
+      applyFontSizeValue = (currentFontSizeValue < 4) ?
+        currentFontSizeValue + 0.25 :
+        currentFontSizeValue + 0;
+      break;
+    // フォントサイズを小さくする処理
+    case 'smaller':
+      // 小さくなりすぎないようにガード
+      applyFontSizeValue = (currentFontSizeValue > 1) ?
+        currentFontSizeValue - 0.25 :
+        currentFontSizeValue + 0;
+      break;
+    // 上記以外のケースはガードしているのでdefaultは設定しない
+    }
+
+    // 要素に新たなフォントサイズを適用
+    targetElementStyle.fontSize = `${applyFontSizeValue}rem`;
+    saveBoxValueToLocalStorage(wrapperElement.id);
+  }
   /**
    * 付箋要素がクリックされたときに他の要素よりも表示を手前にする
    * @param {object} mousedownObject - クリック時の情報が入ったオブジェクト
@@ -758,8 +791,16 @@
         }
 
         // 書き込み処理
-        FILE_SYSTEM.writeFile(writePath, writeData, 'utf8', function(writeError) {
+        FILE_SYSTEM.writeFile(writePath, writeData, 'utf8', fileWriteEvent);
+
+        /**
+         * ファイル保存が成功すれば要素と選択肢ボックスを削除、失敗すればエラーを返す
+         * @param {string} writeError - ファイル書き込み成功ならばnull、失敗ならばメッセージが入っている
+         * @return {string} - ファイル書き込み成功なら何もリターンしない、失敗ならエラーメッセージを返す
+         */
+        function fileWriteEvent(writeError) {
           if (writeError) {
+            // 失敗時はエラーを表示
             return console.log(writeError);
           } else {
             // 保存成功時は要素と選択肢ボックスを削除
@@ -767,7 +808,7 @@
             removeElements(SCREEN_TARGET, [choiceBox, modal]);
             return;
           }
-        });
+        }
       }
     }
   }
