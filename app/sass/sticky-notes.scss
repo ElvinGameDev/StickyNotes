@@ -31,6 +31,9 @@ html, body {
   box-sizing: content-box;
   position: absolute;
   z-index: 100;
+  border-right: solid 1px #eee;
+  border-left: solid 1px #eee;
+  border-bottom: solid 1px #eee;
 
   &__headline {
     cursor: move;

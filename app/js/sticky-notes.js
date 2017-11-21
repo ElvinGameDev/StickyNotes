@@ -28,6 +28,10 @@
  *
  */
 (function() {
+  /** electronのモジュールを格納 @const {object} */
+  const ELECTRON_MODULE = require('electron').remote;
+  /** ローカルPCのファイルシステムを取得 @const {object} */
+  const FILE_SYSTEM = require('fs');
   /** STORAGEにローカルストレージオブジェクトを格納する @const {object} */
   let STORAGE = localStorage;
   /** ローカルストレージに記憶する要素 @let {array} */
@@ -685,11 +689,10 @@
     saveChoice.textContent = '保存...';
     // 保存イベントを設置
     saveChoice.addEventListener('click', function(clickObject) {
-      let browserWindow = require('electron').remote.getCurrentWindow();
-      // dialogモジュールを取得
-      const {dialog} = require('electron').remote;
-      // ローカルのファイルシステムを取得
-      let fs = require('fs');
+      // 現在の表示ウィンドウを取得
+      const browserWindow = ELECTRON_MODULE.getCurrentWindow();
+      // ELECTRON_MODULEからdialogプロパティを取得
+      const {dialogModule} = ELECTRON_MODULE;
 
       let options = {
         title: 'StickyNots 保存',
@@ -699,7 +702,7 @@
         ],
         properties: ['openFile', 'createDirectory'],
       };
-      dialog.showSaveDialog(browserWindow, options, function(filename) {
+      dialogModule.showSaveDialog(browserWindow, options, function(filename) {
         if (filename) {
           let data = validateData;
           writeFile(filename, data);
@@ -721,7 +724,7 @@
         }
 
         // 書き込み処理
-        fs.writeFile(writePath, writeData, 'utf8', function(writeError) {
+        FILE_SYSTEM.writeFile(writePath, writeData, 'utf8', function(writeError) {
           if (writeError) {
             return console.log(writeError);
           } else {

@@ -22,7 +22,10 @@ html, body {
   -webkit-box-sizing: content-box;
           box-sizing: content-box;
   position: absolute;
-  z-index: 100; }
+  z-index: 100;
+  border-right: solid 1px #eee;
+  border-left: solid 1px #eee;
+  border-bottom: solid 1px #eee; }
   .box__headline {
     cursor: move;
     min-width: 400px;
