@@ -64,6 +64,8 @@
    * ロード時にローカルストレージを呼び出し、処理を分岐させる
    */
   window.addEventListener('load', function() {
+    // キーボードショートカットを監視するイベントを設置
+    keyBoadShortCutEvent();
     // STORAGEにIDSというプロパティがあるかどうかを調べ条件分岐させる
     // 真ならローカルストレージの情報を画面に再現
     // 偽なら新たに1つの付箋要素を作成
@@ -1062,8 +1064,8 @@
 
   /**
    * classListからを検索条件に引っかかるクラス名をリターンする
-   * @param {object} targetList -.classList(DOM要素のプロパティから取得したもの)
-   * @param {RegExp} regExp -検索条件
+   * @param {object} targetList - .classList(DOM要素のプロパティから取得したもの)
+   * @param {RegExp} regExp - 検索条件
    * @return {string} matchClassName - 検索条件に引っかかるクラス名をリターンする
    */
   function getClassNameFromTarget(targetList, regExp) {
@@ -1121,5 +1123,19 @@
       resizeTarget.style.width = `${applyWidth}px`;
       resizeTarget.style.height = `${applyHeight}px`;
     }
+  }
+
+  /**
+   * キーボードショートカットを押した時に受信する信号を監視する
+   */
+  function keyBoadShortCutEvent() {
+    // クライアントサイドのipcのモジュールを取得
+    const ipc = require('electron').ipcRenderer;
+
+    // ipc.sendSync('synchronous-message', 'ping');
+    ipc.on('shortCutCtrl&N', (msg) => {
+      // 新たな付箋要素を作成
+      firstElementCreate();
+    });
   }
 })();
