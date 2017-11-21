@@ -692,7 +692,7 @@
       // 現在の表示ウィンドウを取得
       const browserWindow = ELECTRON_MODULE.getCurrentWindow();
       // ELECTRON_MODULEからdialogプロパティを取得
-      const {dialogModule} = ELECTRON_MODULE;
+      const dialogModule = ELECTRON_MODULE.dialog;
 
       let options = {
         title: 'StickyNots 保存',
