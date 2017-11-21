@@ -651,6 +651,10 @@
     let headlineElement = createElementAndSetAttribute('h1', {
       'class': 'choice__headline',
     });
+    // モーダルマスク要素の生成
+    let modal = createElementAndSetAttribute('div', {
+      'class': 'modal',
+    });
     headlineElement.textContent = 'このメモを保存しない場合、その内容はすべて失われます。';
     let explainElement = createElementAndSetAttribute('p', {
       'class': 'choice__explain',
@@ -660,6 +664,7 @@
     let btnLines = createElementAndSetAttribute('ul', {
       'class': 'choice__btns',
     });
+
     // 削除ボタンを生成
     let deleteChoice = createElementAndSetAttribute('li', {
       'class': 'choice__btns--delete',
@@ -667,10 +672,8 @@
     });
     deleteChoice.textContent = '保存しない';
     // 削除イベントを設置
-    deleteChoice.addEventListener('click', function(clickObject) {
-      elementDeleteFromScreen(deleteElement);
-      removeElements(SCREEN_TARGET, [choiceBox, modal]);
-    });
+    deleteChoice.addEventListener('click', deleteChoiceEvent);
+
     // キャンセルボタンを生成
     let cancelChoice = createElementAndSetAttribute('li', {
       'class': 'choice__btns--cancel',
@@ -678,9 +681,8 @@
     });
     cancelChoice.textContent = 'キャンセル';
     // キャンセルイベントを設置
-    cancelChoice.addEventListener('click', function(clickObject) {
-      removeElements(SCREEN_TARGET, [choiceBox, modal]);
-    });
+    cancelChoice.addEventListener('click', cancelChoiceEvent);
+
     // 保存ボタンを生成
     let saveChoice = createElementAndSetAttribute('li', {
       'class': 'choice__btns--save',
@@ -688,7 +690,39 @@
     });
     saveChoice.textContent = '保存...';
     // 保存イベントを設置
-    saveChoice.addEventListener('click', function(clickObject) {
+    saveChoice.addEventListener('click', saveChoiceEvent);
+
+    // 各要素を子要素として格納
+    appendElements(btnLines, [deleteChoice, cancelChoice, saveChoice]);
+    appendElements(choiceBox, [headlineElement, explainElement, btnLines]);
+    // 画面に表示する
+    appendElements(SCREEN_TARGET, [choiceBox, modal]);
+
+    /**
+     * 保存しないボタンが押されたときは要素と選択肢を削除する
+     * @param {object} clickObject - クリック時の情報が入ったオブジェクト
+     */
+    function deleteChoiceEvent(clickObject) {
+      // 画面から要素を削除
+      elementDeleteFromScreen(deleteElement);
+      // 画面から選択肢ボックスを削除
+      removeElements(SCREEN_TARGET, [choiceBox, modal]);
+    }
+
+    /**
+     * キャンセルボタンが押されたときは選択肢のみを削除する
+     * @param {object} clickObject - クリック時の情報が入ったオブジェクト
+     */
+    function cancelChoiceEvent(clickObject) {
+      // 画面から選択肢ボックスを削除
+      removeElements(SCREEN_TARGET, [choiceBox, modal]);
+    }
+
+    /**
+     * 保存ボタンが押されたときは保存ダイアログを表示し、保存成功時に要素と選択肢ボックスを削除する
+     * @param {object} clickObject - クリック時の情報が入ったオブジェクト
+     */
+    function saveChoiceEvent(clickObject) {
       // 現在の表示ウィンドウを取得
       const browserWindow = ELECTRON_MODULE.getCurrentWindow();
       // ELECTRON_MODULEからdialogプロパティを取得
@@ -728,24 +762,14 @@
           if (writeError) {
             return console.log(writeError);
           } else {
+            // 保存成功時は要素と選択肢ボックスを削除
             elementDeleteFromScreen(deleteElement);
             removeElements(SCREEN_TARGET, [choiceBox, modal]);
             return;
           }
         });
       }
-    });
-
-    // モーダルマスク要素の生成
-    let modal = createElementAndSetAttribute('div', {
-      'class': 'modal',
-    });
-
-    // 各要素を子要素として格納
-    appendElements(btnLines, [deleteChoice, cancelChoice, saveChoice]);
-    appendElements(choiceBox, [headlineElement, explainElement, btnLines]);
-    // 画面に表示する
-    appendElements(SCREEN_TARGET, [choiceBox, modal]);
+    }
   }
 
   /**
@@ -796,9 +820,8 @@
     }
 
     // targetElementに対してmaterialElementsをループで回してappendchildする
-    for (const key in materialElements) {
-      if (materialElements[key] === null) continue;
-      targetElement.removeChild(materialElements[key]);
+    for (let i = 0; i < materialElements.length; i++) {
+      targetElement.removeChild(materialElements[i]);
     }
 
     // targetElementを返す
@@ -821,9 +844,8 @@
     }
 
     // targetElementに対してmaterialElementsをループで回してappendchildする
-    for (const key in materialElements) {
-      if (materialElements[key] === null) continue;
-      targetElement.appendChild(materialElements[key]);
+    for (let i = 0; i < materialElements.length; i++) {
+      targetElement.appendChild(materialElements[i]);
     }
 
     // targetElementを返す
