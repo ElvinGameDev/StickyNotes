@@ -28,7 +28,7 @@
  *
  */
 (function() {
-  /** STORAGEにはローカルストレージオブジェクトが格納される @const {object} */
+  /** STORAGEにローカルストレージオブジェクトを格納する @const {object} */
   let STORAGE = localStorage;
   /** ローカルストレージに記憶する要素 @let {array} */
   let BOX_IDS = [];
@@ -610,14 +610,14 @@
     // テキストエリアに入力があるかどうかで条件分岐
     (validateTarget.value !== '') ?
       showChoices(removeElement, validateTarget.value) : // 選択肢を表示しユーザーに注意換気
-      elementDelete(removeElement);// 素直に要素を削除
+      elementDeleteFromScreen(removeElement); // 素直に要素を削除
   }
 
   /**
    * 要素を画面から削除する
    * @param {object} deleteElement - 削除する対象となる要素
    */
-  function elementDelete(deleteElement) {
+  function elementDeleteFromScreen(deleteElement) {
     // 画面から削除する
     SCREEN_TARGET.removeChild(deleteElement);
 
@@ -664,7 +664,7 @@
     deleteChoice.textContent = '保存しない';
     // 削除イベントを設置
     deleteChoice.addEventListener('click', function(clickObject) {
-      elementDelete(deleteElement);
+      elementDeleteFromScreen(deleteElement);
       removeElements(SCREEN_TARGET, [choiceBox, modal]);
     });
     // キャンセルボタンを生成
@@ -725,7 +725,7 @@
           if (writeError) {
             return console.log(writeError);
           } else {
-            elementDelete(deleteElement);
+            elementDeleteFromScreen(deleteElement);
             removeElements(SCREEN_TARGET, [choiceBox, modal]);
             return;
           }
@@ -797,6 +797,9 @@
       if (materialElements[key] === null) continue;
       targetElement.removeChild(materialElements[key]);
     }
+
+    // targetElementを返す
+    return targetElement;
   }
 
   /**
