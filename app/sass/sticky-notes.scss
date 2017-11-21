@@ -195,24 +195,37 @@ html, body {
 
       &:hover {
         cursor: pointer;
-        border: solid 1px transparent;
-        opacity: .9;
       }
     }
     &--delete {
-      background: rgb(255, 114, 58);
-      color: #fff;
-      border: solid 1px gray;
+      background: rgb(240, 240, 240);
+      color: #444;
+      border: solid 1px #666;
+
+      &:hover {
+        background-color: rgb(255, 114, 58);
+        color: #fff;
+      }
     }
     &--cancel {
       background: rgb(240, 240, 240);
       color: #444;
-      border: solid 1px #bbb;
+      border: solid 1px #666;
+
+      &:hover {
+        background-color: #fafafa;
+        border: solid 1px #222;
+        color: #222;
+      }
     }
     &--save {
       background: rgb(87, 132, 255);
       color: #fff;
       border: solid 1px gray;
+
+      &:hover {
+        background-color: rgb(110, 151, 255);
+      }
     }
   }
 }

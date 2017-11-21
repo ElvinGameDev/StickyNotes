@@ -169,21 +169,28 @@ html, body {
       .choice__btns > li:last-child {
         margin-right: 1rem; }
       .choice__btns > li:hover {
-        cursor: pointer;
-        border: solid 1px transparent;
-        opacity: .9; }
+        cursor: pointer; }
     .choice__btns--delete {
-      background: #ff723a;
-      color: #fff;
-      border: solid 1px gray; }
+      background: #f0f0f0;
+      color: #444;
+      border: solid 1px #666; }
+      .choice__btns--delete:hover {
+        background-color: #ff723a;
+        color: #fff; }
     .choice__btns--cancel {
       background: #f0f0f0;
       color: #444;
-      border: solid 1px #bbb; }
+      border: solid 1px #666; }
+      .choice__btns--cancel:hover {
+        background-color: #fafafa;
+        border: solid 1px #222;
+        color: #222; }
     .choice__btns--save {
       background: #5784ff;
       color: #fff;
       border: solid 1px gray; }
+      .choice__btns--save:hover {
+        background-color: #6e97ff; }
 
 .modal {
   position: absolute;

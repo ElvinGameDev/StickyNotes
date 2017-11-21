@@ -685,20 +685,21 @@
     saveChoice.textContent = '保存...';
     // 保存イベントを設置
     saveChoice.addEventListener('click', function(clickObject) {
-      const remote = require('electron').remote;
+      let browserWindow = require('electron').remote.getCurrentWindow();
+      // dialogモジュールを取得
       const {dialog} = require('electron').remote;
+      // ローカルのファイルシステムを取得
       let fs = require('fs');
 
-      let window = remote.getCurrentWindow();
       let options = {
-        title: 'タイトル',
+        title: 'StickyNots 保存',
         filters: [
           {name: 'ドキュメント', extensions: ['txt', 'text']},
           {name: 'All Files', extensions: ['*']},
         ],
         properties: ['openFile', 'createDirectory'],
       };
-      dialog.showSaveDialog(window, options, function(filename) {
+      dialog.showSaveDialog(browserWindow, options, function(filename) {
         if (filename) {
           let data = validateData;
           writeFile(filename, data);
@@ -706,16 +707,27 @@
       });
 
       /**
-       *
-       * @param {*} path
-       * @param {*} data
+       * ローカルPCのファイルシステムにアクセスしデータを作成する
+       * @param {string} writePath - 保存ダイアログで選択されたファイル名
+       * @param {string} writeData - データに書き込まれる内容
        */
-      function writeFile(path, data) {
-        fs.writeFile(path, data, 'utf8', function(err) {
-          if (err) {
-            return console.log(err);
+      function writeFile(writePath, writeData) {
+        // 引数が想定通りかを判定
+        if (typeof writePath !== 'string') {
+          throw new Error('In writeFile at "writePath" must be string');
+        }
+        if (typeof writeData !== 'string') {
+          throw new Error('In writeFile at "writeData" must be string');
+        }
+
+        // 書き込み処理
+        fs.writeFile(writePath, writeData, 'utf8', function(writeError) {
+          if (writeError) {
+            return console.log(writeError);
           } else {
-            console.info('success');
+            elementDelete(deleteElement);
+            removeElements(SCREEN_TARGET, [choiceBox, modal]);
+            return;
           }
         });
       }
@@ -726,9 +738,10 @@
       'class': 'modal',
     });
 
+    // 各要素を子要素として格納
     appendElements(btnLines, [deleteChoice, cancelChoice, saveChoice]);
     appendElements(choiceBox, [headlineElement, explainElement, btnLines]);
-
+    // 画面に表示する
     appendElements(SCREEN_TARGET, [choiceBox, modal]);
   }
 
