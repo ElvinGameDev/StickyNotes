@@ -47,13 +47,13 @@
    */
   const Z_INDEX_COUNTER = {
     count: 100,
-    countUp: function() {
+    countUp: () => {
       return this.count++;
     },
-    countReset: function() {
+    countReset: () => {
       return (this.count = 100);
     },
-    getCount: function() {
+    getCount: () => {
       return this.count;
     },
   };
@@ -63,7 +63,7 @@
   /**
    * ロード時にローカルストレージを呼び出し、処理を分岐させる
    */
-  window.addEventListener('load', function() {
+  window.addEventListener('load', () => {
     // キーボードショートカットを監視するイベントを設置
     keyBoadShortCutEvent();
     // STORAGEにIDSというプロパティがあるかどうかを調べ条件分岐させる
@@ -201,7 +201,7 @@
     );
 
     // boxHeadlineElementにイベントを追加
-    boxHeadlineElement.addEventListener('mouseover', function(mouseoverObject) {
+    boxHeadlineElement.addEventListener('mouseover', (mouseoverObject) => {
       (mouseoverObject.target.children.length > 0) ?
         this.addEventListener('mousedown', elementMoveOnDrug) :
         this.removeEventListener('mousedown', elementMoveOnDrug);
@@ -225,13 +225,13 @@
     boxTextareaElement.addEventListener(
       'mouseover', addEventCursorAllScrollOnMouseover
     );
-    boxTextareaElement.addEventListener('mouseout', function(mouseoutObject) {
+    boxTextareaElement.addEventListener('mouseout', (mouseoutObject) => {
       boxTextareaElement.removeEventListener(
         'mouseover', addEventCursorAllScrollOnMouseover
       );
     });
     // テキスト変更を監視するイベント
-    boxTextareaElement.addEventListener('change', function(changeObject) {
+    boxTextareaElement.addEventListener('change', (changeObject) => {
       saveBoxValueToLocalStorage(changeObject.target.parentElement.id);
     });
 
@@ -463,7 +463,7 @@
     });
 
     // 閉じるボタンを押した時にメニューバーをremoveする
-    closeBtn.addEventListener('click', function(clickObject) {
+    closeBtn.addEventListener('click', (clickObject) => {
       let showTarget = clickObject.target.parentElement.parentElement;
       showTarget.removeChild(clickObject.target.parentElement);
     });
@@ -738,10 +738,10 @@
      * @param {object} clickObject - クリック時の情報が入ったオブジェクト
      */
     function deleteChoiceEvent(clickObject) {
-      // 画面から要素を削除
-      elementDeleteFromScreen(deleteElement);
       // 画面から選択肢ボックスを削除
       removeElements(SCREEN_TARGET, [choiceBox, modal]);
+      // 画面から要素を削除
+      elementDeleteFromScreen(deleteElement);
     }
 
     /**
@@ -803,11 +803,10 @@
         function fileWriteEvent(writeError) {
           if (writeError) {
             // 失敗時はエラーを表示
-            return console.log(writeError);
           } else {
             // 保存成功時は要素と選択肢ボックスを削除
-            elementDeleteFromScreen(deleteElement);
             removeElements(SCREEN_TARGET, [choiceBox, modal]);
+            elementDeleteFromScreen(deleteElement);
             return;
           }
         }
