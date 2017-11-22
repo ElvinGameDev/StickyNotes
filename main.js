@@ -41,7 +41,7 @@ const template = [
         accelerator: 'CmdOrCtrl+N',
         click: function() {
           // クライアントサイドにショートカットキーが押された信号を送る
-          mainWindow.webContents.send('shortCutCtrl&N', 'N');
+          mainWindow.webContents.send('CmdOrCtrl+N', 'N');
         },
       },
       {

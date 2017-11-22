@@ -2,7 +2,7 @@
  *@fileoverview control event and data about StickyNotes
  *@author AkihisaOchi
  *
- * ***************** localStorage memo *****************
+ * ---------------- localStorage memo ----------------
  *
  * use localStorage for following two points
  * [1] store ids of element
@@ -24,7 +24,7 @@
  *  fontSize    : 'textarea font-size'
  * }
  *
- * ***************** localStorage memo *****************
+ * ---------------- localStorage memo ----------------
  *
  */
 (function() {
@@ -48,13 +48,13 @@
   const Z_INDEX_COUNTER = {
     count: 100,
     countUp: () => {
-      return this.count++;
+      return Z_INDEX_COUNTER.count++;
     },
     countReset: () => {
-      return (this.count = 100);
+      return (Z_INDEX_COUNTER.count = 100);
     },
     getCount: () => {
-      return this.count;
+      return Z_INDEX_COUNTER.count;
     },
   };
 
@@ -65,11 +65,15 @@
    */
   window.addEventListener('load', () => {
     // キーボードショートカットを監視するイベントを設置
-    keyBoadShortCutEvent();
+    keyboardShortCutsEvent();
     // STORAGEにIDSというプロパティがあるかどうかを調べ条件分岐させる
-    // 真ならローカルストレージの情報を画面に再現
-    // 偽なら新たに1つの付箋要素を作成
-    ('IDS' in STORAGE) ? elementCreateFromArray() : firstElementCreate();
+    if ('IDS' in STORAGE) {
+      // 真ならローカルストレージの情報を画面に再現
+      elementCreateFromArray();
+    } else {
+      // 偽なら新たに1つの付箋要素を作成
+      firstElementCreate();
+    }
   });
 
 
@@ -144,7 +148,7 @@
       boxWrapperElement,
       [boxHeadlineElement, boxTextareaElement]
     );
-    // 奮戦要素のz-indexに値を適用
+    // 付箋要素のz-indexに値を適用
     boxWrapperElement.style.zIndex = Z_INDEX_COUNTER.countUp();
 
     // z-indexを操作するイベントを追加
@@ -1142,12 +1146,12 @@
   /**
    * キーボードショートカットを押した時に受信する信号を監視する
    */
-  function keyBoadShortCutEvent() {
+  function keyboardShortCutsEvent() {
     // クライアントサイドのipcのモジュールを取得
     const ipc = require('electron').ipcRenderer;
 
     // ipc.sendSync('synchronous-message', 'ping');
-    ipc.on('shortCutCtrl&N', (msg) => {
+    ipc.on('CmdOrCtrl+N', (msg) => {
       // 新たな付箋要素を作成
       firstElementCreate();
     });
