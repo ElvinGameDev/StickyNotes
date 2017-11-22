@@ -1,3 +1,5 @@
+<img src="https://github.com/akihisaochi/StickyNotes/blob/master/app/img/sticky-notes.png" width="200px" alt="StickyNotes icon">
+
 # StickyNotes
 StickyNotes will provide convenient information life
 
