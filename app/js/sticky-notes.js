@@ -201,11 +201,25 @@
     );
 
     // boxHeadlineElementにイベントを追加
-    boxHeadlineElement.addEventListener('mouseover', (mouseoverObject) => {
+    boxHeadlineElement.addEventListener('mouseover',
+      setmouseMoveEventOnMouseover
+    );
+    // mouseout時にイベント削除
+    boxHeadlineElement.addEventListener('mouseout', (mouseoutObject) => {
+      boxHeadlineElement.removeEventListener('mouseover',
+        setmouseMoveEventOnMouseover
+      );
+    });
+
+    /**
+     * マウスオーバー時に要素が子要素を含めば移動イベントを設置する
+     * @param {object} mouseoverObject - mouseover時の情報が入ったオブジェクト
+     */
+    function setmouseMoveEventOnMouseover(mouseoverObject) {
       (mouseoverObject.target.children.length > 0) ?
         this.addEventListener('mousedown', elementMoveOnDrug) :
         this.removeEventListener('mousedown', elementMoveOnDrug);
-    });
+    }
 
     return boxHeadlineElement;
   }
@@ -803,6 +817,7 @@
         function fileWriteEvent(writeError) {
           if (writeError) {
             // 失敗時はエラーを表示
+            return console.error(writeError);
           } else {
             // 保存成功時は要素と選択肢ボックスを削除
             removeElements(SCREEN_TARGET, [choiceBox, modal]);
