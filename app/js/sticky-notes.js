@@ -866,10 +866,10 @@
   }
 
   /**
-   * removeElementsはtargetElementに対してmaterialElementsをループで回してappendchildする
-   * @param {object} targetElement - appendchildの対象となる要素
-   * @param {array} materialElements - appendChildの素材となる要素軍群
-   * @return {object} targetElement - materialElementsをappendchild()して返す
+   * removeElementsはtargetElementに対してmaterialElementsをループで回してremoveChildする
+   * @param {object} targetElement - removeChildの対象となる要素
+   * @param {array} materialElements - removeChildの素材となる要素軍群
+   * @return {object} targetElement - materialElementsをremoveChild()して返す
    */
   function removeElements(targetElement, materialElements) {
     // 引数のデータ型が期待通りかどうかを判定
@@ -880,7 +880,7 @@
       throw new Error('In appendElement() at "materialElements" must be array');
     }
 
-    // targetElementに対してmaterialElementsをループで回してappendchildする
+    // targetElementに対してmaterialElementsをループで回してremoveChildする
     for (let i = 0; i < materialElements.length; i++) {
       targetElement.removeChild(materialElements[i]);
     }
@@ -890,10 +890,10 @@
   }
 
   /**
-   * appendElementsはtargetElementに対してmaterialElementsをループで回してappendchildする
-   * @param {object} targetElement - appendchildの対象となる要素
+   * appendElementsはtargetElementに対してmaterialElementsをループで回してappendChildする
+   * @param {object} targetElement - appendChildの対象となる要素
    * @param {array} materialElements - appendChildの素材となる要素軍群
-   * @return {object} targetElement - materialElementsをappendchild()して返す
+   * @return {object} targetElement - materialElementsをappendChild()して返す
    */
   function appendElements(targetElement, materialElements) {
     // 引数のデータ型が期待通りかどうかを判定
@@ -904,7 +904,7 @@
       throw new Error('In appendElement() at "materialElements" must be array');
     }
 
-    // targetElementに対してmaterialElementsをループで回してappendchildする
+    // targetElementに対してmaterialElementsをループで回してappendChildする
     for (let i = 0; i < materialElements.length; i++) {
       targetElement.appendChild(materialElements[i]);
     }

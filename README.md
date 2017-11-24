@@ -23,4 +23,4 @@ https://github.com/electron/electron
 
 ## License
 
-2017 © akihisaochi
+[MIT License](LICENSE)
