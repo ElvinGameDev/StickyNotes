@@ -120,8 +120,6 @@ app.on('ready', function() {
     frame: false, // フレーム有無
     resizable: false, // 大きさ変更禁止
   });
-  // 透明な部分のマウスのクリックを検知させない
-  mainWindow.setIgnoreMouseEvents(true);
   mainWindow.loadURL('file://' + __dirname + '/app/index.html');
 
   // メニュー機能を追加
