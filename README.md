@@ -21,6 +21,15 @@ This app use electron framework.
 Please check the link below for how to use Electron.
 https://github.com/electron/electron
 
+to build this application, executing follwing command
+
+```
+git clone https://github.com/akihisaochi/StickyNotes.git
+cd StickyNotes
+npm install -g electron-packager
+electron-packager . StickyNotes --platform=darwin --arch=x64 --icon=SticyNotes.icns --electron-version=1.4.14
+```
+
 ## License
 
 [MIT License](LICENSE)
