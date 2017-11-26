@@ -5,17 +5,21 @@ StickyNotes will provide convenient information life
 
 ## Author
 
-> Akihisa Ochi ( I'm waiting for the improvement plan )
+> Akihisa Ochi
 
 
-## 1.Case using this application
+## Install App
 
+mac
 ```
-Coming soon(Applying to AppStore & Checking distribution method of windows application)
+[StickyNotes-1.0.0.dmg](dist/StickyNotes-1.0.0.dmg)
+```
+windows
+```
+[StickyNotes Setup 1.0.0.exe](dist/StickyNotes Setup 1.0.0.exe)
 ```
 
-
-## 2.Case download sourcecode & Customize
+## Customize App
 
 This app use electron framework.
 Please check the link below for how to use Electron.
@@ -26,9 +30,8 @@ to build this application, executing follwing command
 ```
 git clone https://github.com/akihisaochi/StickyNotes.git
 cd StickyNotes
-npm install
-npm install -g electron-packager
-electron-packager . StickyNotes --platform=darwin --arch=x64 --icon=StickyNotes.icns --electron-version=1.4.14
+npm i
+npm run pack
 ```
 
 ## License

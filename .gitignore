@@ -1,3 +1,9 @@
 node_modules
 .vscode/
 .DS_Store
+StickyNotes-mas-x64
+dist/win-unpacked
+dist/mac
+dist/latest-mac.yml
+dist/latest.yml
+dist/StickyNotes-1.0.0.dmg.blockmap

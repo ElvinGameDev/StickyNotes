@@ -4,7 +4,11 @@
   "description": "Sticky Notes will provide convinent information life",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron .",
+    "pack": "npm run pack:mac && npm run pack:win",
+    "pack:mac": "./node_modules/.bin/build --mac --x64",
+    "pack:win": "./node_modules/.bin/build --win --x64"
   },
   "path": {
     "assetsDir": "app/",
@@ -19,9 +23,25 @@
     "name": "AkihisaOchi",
     "email": "akihisa.ochi.work@gmail.com"
   },
-  "license": "ISC",
+  "build": {
+    "appId": "com.electron.StickyNotes",
+    "productName": "StickyNotes",
+    "mac": {
+      "target": "dmg",
+      "icon": "build/StickyNotes.icns"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "build/StickyNotes.ico"
+    },
+    "directories": {
+      "output": "dist"
+    }
+  },
+  "license": "MIT",
   "devDependencies": {
     "browser-sync": "^2.18.13",
+    "electron-builder": "^19.46.4",
     "eslint-config-google": "^0.9.1",
     "gulp": "^3.9.1",
     "gulp-autoprefixer": "^4.0.0",
