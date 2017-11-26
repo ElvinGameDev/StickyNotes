@@ -30,6 +30,8 @@
 (function() {
   /** electronのモジュールを格納 @const {object} */
   const ELECTRON_MODULE = require('electron').remote;
+  // クライアントサイドのipcのモジュールを取得
+  const IPC_RENDERER = require('electron').ipcRenderer;
   /** ローカルPCのファイルシステムを取得 @const {object} */
   const FILE_SYSTEM = require('fs');
   /** STORAGEにローカルストレージオブジェクトを格納する @const {object} */
@@ -66,6 +68,9 @@
   window.addEventListener('load', () => {
     // キーボードショートカットを監視するイベントを設置
     keyboardShortCutsEvent();
+    // 背景がクリックされた時にwindowを隠す信号をメインプロセスに送る
+    hideWindowOnClickDocument();
+
     // STORAGEにIDSというプロパティがあるかどうかを調べ条件分岐させる
     if ('IDS' in STORAGE) {
       // 真ならローカルストレージの情報を画面に再現
@@ -1147,13 +1152,21 @@
    * キーボードショートカットを押した時に受信する信号を監視する
    */
   function keyboardShortCutsEvent() {
-    // クライアントサイドのipcのモジュールを取得
-    const ipc = require('electron').ipcRenderer;
-
     // ipc.sendSync('synchronous-message', 'ping');
-    ipc.on('CmdOrCtrl+N', (msg) => {
+    IPC_RENDERER.on('CmdOrCtrl+N', (msg) => {
       // 新たな付箋要素を作成
       firstElementCreate();
+    });
+  }
+
+  /**
+   * 背景がクリックされた時にwindowを隠す信号をメインプロセスに送る
+   */
+  function hideWindowOnClickDocument() {
+    document.addEventListener('click', function (e) {
+      if (e.target.nodeName === 'HTML') {
+        IPC_RENDERER.send('hide', 'hide');
+      }
     });
   }
 })();

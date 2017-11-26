@@ -5,15 +5,17 @@ html, body {
   overflow: hidden;
   position: relative;
   font-size: 10px;
+  pointer-events: none;
   font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI","Noto Sans Japanese","ヒラギノ角ゴ ProN W3", Meiryo, sans-serif; }
 
 .wrapper {
-  background: transparent; }
+  pointer-events: none; }
 
 .main {
   width: 100%;
   height: 100%;
-  font-size: 1.6rem; }
+  font-size: 1.6rem;
+  pointer-events: none; }
 
 .box {
   min-width: 400px;
@@ -23,6 +25,7 @@ html, body {
           box-sizing: content-box;
   position: absolute;
   z-index: 100;
+  pointer-events: auto;
   -webkit-box-shadow: 0 0 3px #9e9e9e;
           box-shadow: 0 0 3px #9e9e9e; }
   .box__headline {

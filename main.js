@@ -1,11 +1,11 @@
-'use strict';
-
 // Electronのモジュール
 const electron = require('electron');
 
 // アプリケーションをコントロールするモジュール
 const app = electron.app;
 
+// ipcMainモジュールの取得
+const ipcMain = electron.ipcMain;
 
 // ウィンドウを作成するモジュール
 const BrowserWindow = electron.BrowserWindow;
@@ -119,14 +119,26 @@ app.on('ready', function() {
     transparent: true, // 背景透過
     frame: false, // フレーム有無
     resizable: false, // 大きさ変更禁止
+    hasShadow: false,
   });
   mainWindow.loadURL('file://' + __dirname + '/app/index.html');
+
+  hideWindowOnClickBackground();
 
   // メニュー機能を追加
   globalMenu.setApplicationMenu(globalMenu.buildFromTemplate(template));
 
   // ウィンドウが閉じられたらアプリも終了
-  mainWindow.on('closed', function() {
+  mainWindow.on('closed', () => {
     mainWindow = null;
   });
 });
+
+/**
+ * レンダラプロセスで付箋要素以外がクリックされた時にはwindowを隠す
+ */
+function hideWindowOnClickBackground() {
+  ipcMain.on('hide', (event, arg) => {
+    app.hide();
+  })
+}
