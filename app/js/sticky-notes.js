@@ -414,12 +414,20 @@
     let wrapperElement = clickObject.target.parentElement.parentElement;
     let addPositionX = wrapperElement.offsetLeft;
     let addPositionY = (wrapperElement.offsetTop + wrapperElement.offsetHeight);
+    let applyColorClassName = getClassNameFromTarget(
+      wrapperElement.classList, /^box__color--/
+    );
 
     let uniqueId = createUniqueId();
     let appendBox = createBox(uniqueId);
+    let removeColorClassName = getClassNameFromTarget(
+      appendBox.classList, /^box__color--/
+    );
 
     appendBox.style.left = `${addPositionX}px`;
     appendBox.style.top = `${addPositionY}px`;
+    appendBox.classList.remove(removeColorClassName);
+    appendBox.classList.add(applyColorClassName);
 
     appendElements(SCREEN_TARGET, [appendBox]);
 

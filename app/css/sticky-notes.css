@@ -129,7 +129,8 @@ html, body {
   text-align: center;
   border-radius: 5px;
   -webkit-box-shadow: 0 0 5px gray;
-          box-shadow: 0 0 5px gray; }
+          box-shadow: 0 0 5px gray;
+  pointer-events: auto; }
   .choice__headline {
     width: 100%;
     -webkit-box-sizing: border-box;

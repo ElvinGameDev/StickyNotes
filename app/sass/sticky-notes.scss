@@ -149,6 +149,7 @@ html, body {
   text-align: center;
   border-radius: 5px;
   box-shadow: 0 0 5px gray;
+  pointer-events: auto;
 
   &__headline {
     width: 100%;
