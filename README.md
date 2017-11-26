@@ -10,14 +10,7 @@ StickyNotes will provide convenient information life
 
 ## Install App
 
-mac
-```
-[StickyNotes-1.0.0.dmg](dist/StickyNotes-1.0.0.dmg)
-```
-windows
-```
-[StickyNotes Setup 1.0.0.exe](dist/StickyNotes Setup 1.0.0.exe)
-```
+[release page](https://github.com/akihisaochi/StickyNotes/releases/tag/v1.0.0)
 
 ## Customize App
 
