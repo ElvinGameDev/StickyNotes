@@ -1171,10 +1171,21 @@
    * 背景がクリックされた時にwindowを隠す信号をメインプロセスに送る
    */
   function hideWindowOnClickDocument() {
-    document.addEventListener('click', function (e) {
+    document.addEventListener('click', (e) => {
       if (e.target.nodeName === 'HTML') {
         IPC_RENDERER.send('hide', 'hide');
       }
     });
   }
+
+  // windows専用の非表示処理
+  IPC_RENDERER.on('hideForWindows', (msg) => {
+    // osがwindowsの場合にメインプロセスでアプリを隠すapiが対応していないので要素を非表示にする
+    SCREEN_TARGET.style.display = 'none';
+  });
+
+  // ウィンドウにフォーカスが当たれば表示する
+  window.addEventListener('focus', () => {
+    SCREEN_TARGET.style.display = 'block';
+  });
 })();

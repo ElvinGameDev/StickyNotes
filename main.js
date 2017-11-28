@@ -135,10 +135,14 @@ app.on('ready', function() {
 });
 
 /**
- * レンダラプロセスで付箋要素以外がクリックされた時にはwindowを隠す
+ * macの場合はレンダラプロセスで付箋要素以外がクリックされた時にはwindowを隠す
  */
 function hideWindowOnClickBackground() {
   ipcMain.on('hide', (event, arg) => {
-    app.hide();
-  })
+    if (process.platform === 'darwin') {
+      app.hide();
+    } else {
+      mainWindow.webContents.send('hideForWindows', 'hideForWindows');
+    }
+  });
 }
