@@ -69,7 +69,7 @@
     // キーボードショートカットを監視するイベントを設置
     keyboardShortCutsEvent();
     // 背景がクリックされた時にwindowを隠す信号をメインプロセスに送る
-    hideWindowOnClickDocument();
+    document.addEventListener('mousedown', hideWindowOnClickDocument);
 
     // STORAGEにIDSというプロパティがあるかどうかを調べ条件分岐させる
     if ('IDS' in STORAGE) {
@@ -213,12 +213,6 @@
     boxHeadlineElement.addEventListener('mouseover',
       setmouseMoveEventOnMouseover
     );
-    // mouseout時にイベント削除
-    boxHeadlineElement.addEventListener('mouseout', (mouseoutObject) => {
-      boxHeadlineElement.removeEventListener('mouseover',
-        setmouseMoveEventOnMouseover
-      );
-    });
 
     /**
      * マウスオーバー時に要素が子要素を含めば移動イベントを設置する
@@ -1169,13 +1163,12 @@
 
   /**
    * 背景がクリックされた時にwindowを隠す信号をメインプロセスに送る
+   * @param {object} mousedownObject - クリック時の情報が入ったオブジェクト
    */
-  function hideWindowOnClickDocument() {
-    document.addEventListener('click', (e) => {
-      if (e.target.nodeName === 'HTML') {
-        IPC_RENDERER.send('hide', 'hide');
-      }
-    });
+  function hideWindowOnClickDocument(mousedownObject) {
+    if (mousedownObject.target.nodeName === 'HTML') {
+      IPC_RENDERER.send('hide', 'hide');
+    }
   }
 
   // windows専用の非表示処理
