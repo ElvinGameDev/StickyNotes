@@ -1,3 +1,4 @@
+.wf-roundedmplus1c { font-family: "Rounded Mplus 1c"; }
 html, body {
   width: 100vw;
   height: 100vh;
@@ -5,7 +6,7 @@ html, body {
   position: relative;
   font-size: (16px*0.625);
   pointer-events: none;
-  font-family:-apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI","Noto Sans Japanese","ヒラギノ角ゴ ProN W3", Meiryo, sans-serif;
+  font-family: "Rounded Mplus 1c", -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI","Noto Sans Japanese","ヒラギノ角ゴ ProN W3", Meiryo, sans-serif;
 }
 
 .wrapper {
@@ -119,19 +120,19 @@ html, body {
 
   &__color {
     &--yellow {
-      background: #fdf36b;
+      background: #FFF59D;
     }
     &--blue {
-      background: #6eb8f5;
+      background: #81D4FA;
     }
     &--pink {
-      background: #ff7bd7;
+      background: #F48FB1;
     }
     &--green {
-      background: #97ff67;
+      background: #A5D6A7;
     }
     &--gray {
-      background: #aaa;
+      background: #B0BEC5;
     }
   }
 }
@@ -154,7 +155,7 @@ html, body {
   &__headline {
     width: 100%;
     box-sizing: border-box;
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     margin-bottom: 1rem;
 
     &:before {
@@ -169,7 +170,7 @@ html, body {
   }
 
   &__explain {
-    font-size: 1.4rem;
+    font-size: 1.2rem;
     margin-bottom: 2rem;
   }
 

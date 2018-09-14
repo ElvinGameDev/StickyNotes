@@ -481,7 +481,7 @@
       'title': 'smaller',
     });
     let closeBtn = createElementAndSetAttribute('i', {
-      'class': 'fa fa-times',
+      'class': 'fa fa-reply',
       'role': 'button',
       'aria-hidden': 'true',
       'title': 'close',
