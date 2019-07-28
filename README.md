@@ -1,16 +1,16 @@
-<img src="https://github.com/akihisaochi/StickyNotes/blob/master/app/img/sticky-notes.png" width="200px" alt="StickyNotes icon">
+<img src="https://github.com/akihisaArchieSakai/StickyNotes/blob/master/app/img/sticky-notes.png" width="200px" alt="StickyNotes icon">
 
 # StickyNotes
 StickyNotes will provide convenient information life
 
 ## Author
 
-> Akihisa Ochi
+> Akihisa Sakai
 
 
 ## Install App
 
-[release page](https://github.com/akihisaochi/StickyNotes/releases/tag/v1.0.0)
+[download in this page.](https://akihisaarchiesakai.github.io/StickyNotes/)
 
 ## Customize App
 
