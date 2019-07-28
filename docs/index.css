@@ -1,0 +1,47 @@
+body,html {
+  font-family: arial, sans-serif;
+}
+
+.wrapper {
+  width: 100vw;
+  height: 100vh;
+  background-color: #ffe644;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.box {
+  box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
+  box-sizing: border-box;
+  padding: 40px;
+  background-color: rgba(255,255,255,0.1);
+  text-align: center;
+  max-width: 90vw;
+}
+
+.title {
+  font-size: 30px;
+  margin-top: 10px;
+}
+
+.desc {
+  font-size: 12px;
+  margin-top: 10px;
+}
+
+.download {
+  display: block;
+  box-sizing: border-box;
+  width: 100%; 
+  outline: none;
+  border: none;
+  appearance: none;
+  padding: 5px 10px;
+  font-size: 13px;
+  margin-top: 15px;
+  border-radius: 8px;
+  background-color: rgba(255,255,255,0.6);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+  cursor: pointer;
+}
