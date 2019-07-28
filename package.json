@@ -40,7 +40,7 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "browser-sync": "^2.18.13",
+    "browser-sync": "^2.26.7",
     "electron-builder": "^19.46.4",
     "eslint-config-google": "^0.9.1",
     "gulp": "^3.9.1",
@@ -51,5 +51,8 @@
     "gulp-plumber": "^1.1.0",
     "gulp-rename": "^1.2.2",
     "gulp-sass": "^3.1.0"
+  },
+  "dependencies": {
+    "adjust": "^2.1.1"
   }
 }
